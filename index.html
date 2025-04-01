@@ -8,6 +8,8 @@
       href="https://fonts.googleapis.com/css2?family=Bangers&display=swap"
       rel="stylesheet"
     />
+    <!-- Add Farcade SDK Script -->
+    <script src="https://unpkg.com/@farcade/game-sdk@latest/dist/index.min.js"></script>
     <style>
       body {
         margin: 0;
@@ -16,7 +18,7 @@
         justify-content: center;
         align-items: center;
         min-height: 100vh;
-        background: #2a2e5a;
+        background: #0b0c1a;
         font-family: Arial, sans-serif;
       }
 
@@ -27,9 +29,8 @@
         max-height: 1000px;
         position: relative;
         overflow: hidden;
-        background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)),
-          url("https://www.textures.com/system/gallery/824/824087/preview.jpg")
-            no-repeat center center / cover;
+        background: linear-gradient(rgba(0, 0, 0, 0.849), rgba(0, 0, 0, 0.904)),
+          url("/public/817.jpg") no-repeat center center / cover;
         border-radius: 10px;
         box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
       }
@@ -66,43 +67,45 @@
         position: absolute;
         width: 48px;
         height: 64px;
-        background: #e94560;
-        border: 4px solid #000;
-        border-radius: 5px;
+        background: #f5f5e1;
+        border: 2px solid #000;
+        border-radius: 4px;
         display: flex;
         align-items: center;
         justify-content: center;
         cursor: pointer;
         transition: all 0.2s;
         transform-style: preserve-3d;
+        box-shadow: 4px 4px 0 #000;
       }
 
       .tile img {
         width: 100%;
         height: 100%;
-        object-fit: cover; /* Ensures images fill the tile */
+        object-fit: cover;
+        border: 1px solid #000;
       }
 
       .tile.free:hover {
-        box-shadow: 0 0 10px #0f3460;
+        box-shadow: 4px 4px 0 #000, 0 0 10px #0b0c1a;
         transform: scale(1.05);
       }
 
       .tile.blocked {
-        opacity: 0.7;
+        opacity: 0.6;
         cursor: not-allowed;
-        box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.8);
+        box-shadow: 4px 4px 0 #000, inset 0 0 30px rgba(0, 0, 0, 1);
       }
 
       .stats {
-        padding: 10px;
+        padding: 10px 20px;
         color: white;
         width: 100%;
-        background: #0f3460;
+        background: #0b0c1a;
         display: flex;
         justify-content: space-around;
         align-items: center;
-        border-bottom: 2px solid #e94560;
+        border-bottom: 3px solid #e945b8;
       }
 
       .stats span {
@@ -115,11 +118,11 @@
       }
 
       .heart {
-        font-size: 24px;
+        font-size: 32px;
       }
 
       .heart.active {
-        color: #ff4444;
+        color: #e945b8;
       }
 
       .heart.inactive {
@@ -130,7 +133,7 @@
         font-family: "Bangers", cursive;
         font-size: 80px;
         color: white;
-        text-shadow: 6px 6px #0f3460, -3px -3px #000;
+        text-shadow: 6px 6px #0b0c1a, -3px -3px #000;
         letter-spacing: 2px;
         display: flex;
         flex-direction: column;
@@ -139,30 +142,30 @@
 
       #start-btn {
         padding: 15px 30px;
-        background: #e94560;
+        background: #e945b8;
         color: white;
-        border: 4px solid #0f3460;
+        border: 4px solid #0b0c1a;
         border-radius: 10px;
         font-size: 24px;
         font-weight: bold;
         text-transform: uppercase;
         cursor: pointer;
         transform: rotate(-5deg);
-        text-shadow: 2px 2px #0f3460;
+        text-shadow: 2px 2px #0b0c1a;
       }
 
       #start-btn:hover {
-        background: #ff6b81;
+        background: #ff6bdf;
         transform: rotate(0deg);
       }
 
       #rules {
         width: 80%;
-        background: #0f3460;
+        background: #0b0c1a;
         padding: 20px;
-        border: 6px solid #e94560;
+        border: 4px solid #e945b8;
         border-radius: 12px;
-        box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+        box-shadow: 0 0 15px #000;
         font-size: 16px;
         text-align: left;
         margin-top: 20px;
@@ -174,6 +177,7 @@
         font-size: 24px;
         text-shadow: 2px 2px #000;
         color: #fffb00;
+        letter-spacing: 2px;
       }
 
       #rules p {
@@ -183,7 +187,7 @@
       #collected-cards {
         width: 90%;
         height: 84px;
-        background: #3a4a8a;
+        background: #0b0c1a;
         display: flex;
         justify-content: flex-start;
         align-items: center;
@@ -191,28 +195,30 @@
         box-sizing: border-box;
         position: absolute;
         bottom: 20px;
-        border: 6px solid #e94560;
+        border: 3px solid #e945b8;
         border-radius: 12px;
-        box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+        box-shadow: 0 0 15px #000;
       }
 
       .collected-tile {
-        width: 40px;
-        height: 56px;
-        background: #e94560;
-        border: 4px solid #000;
-        border-radius: 5px;
+        width: 50px;
+        height: 66px;
+        background: #f5f5e1;
+        border: 2px solid #000;
+        border-radius: 4px;
         display: flex;
         align-items: center;
         justify-content: center;
         position: absolute;
         transition: transform 0.5s ease-in-out, left 0.5s ease-in-out;
+        box-shadow: 4px 4px 0 #000;
       }
 
       .collected-tile img {
         width: 100%;
         height: 100%;
         object-fit: cover;
+        border: 3px solid #000;
       }
 
       #toast {
@@ -220,7 +226,7 @@
         top: 20%;
         left: 50%;
         transform: translateX(-50%);
-        background: #e94560;
+        background: #e945b8;
         color: #fffb00;
         padding: 15px 25px;
         border-radius: 10px;
@@ -242,9 +248,9 @@
       }
 
       #victory .stats-box {
-        background: #0f3460;
+        background: #0b0c1a;
         padding: 15px;
-        border: 4px solid #e94560;
+        border: 4px solid #e945b8;
         border-radius: 10px;
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
         text-align: center;
@@ -254,21 +260,21 @@
       #lose-screen h2 {
         margin: 0;
         font-size: 24px;
-        background: #e94560;
+        background: #e945b8;
         padding: 10px 20px;
         border: 4px solid #000;
         border-radius: 10px;
-        text-shadow: 2px 2px #0f3460;
+        text-shadow: 2px 2px #0b0c1a;
       }
 
       #game-over h1 {
         margin: 0;
         font-size: 48px;
-        background: #e94560;
+        background: #e945b8;
         padding: 20px 40px;
-        border: 6px solid #000;
+        border: 4px solid #000;
         border-radius: 15px;
-        text-shadow: 4px 4px #0f3460;
+        text-shadow: 4px 4px #0b0c1a;
         transform: rotate(-5deg);
         position: absolute;
         top: 20%;
@@ -283,9 +289,9 @@
       button {
         padding: 10px 20px;
         margin: 10px;
-        background: #0f3460;
+        background: #0b0c1a;
         color: white;
-        border: 4px solid #e94560;
+        border: 2px solid #e945b8;
         border-radius: 8px;
         cursor: pointer;
         font-size: 18px;
@@ -297,7 +303,7 @@
       }
 
       button:hover {
-        background: #e94560;
+        background: #e945b8;
         transform: rotate(0deg);
       }
 
@@ -305,28 +311,32 @@
         0% {
           transform: scale(1) rotate(0deg);
           opacity: 1;
-          box-shadow: 0 0 0 #fffb00;
+          box-shadow: 4px 4px 0 #000;
         }
         20% {
           transform: scale(1.6) rotate(10deg);
           opacity: 1;
-          box-shadow: 0 0 25px #fffb00;
+          box-shadow: 4px 4px 0 #000, 0 0 25px #e945b8;
         }
         40% {
           transform: scale(1.4) rotate(-10deg);
           opacity: 0.9;
-          box-shadow: 0 0 15px #fffb00;
+          box-shadow: 4px 4px 0 #000, 0 0 15px #e945b8;
         }
         60% {
           transform: scale(1.2) rotate(5deg);
           opacity: 0.7;
-          box-shadow: 0 0 10px #fffb00;
+          box-shadow: 4px 4px 0 #000, 0 0 10px #e945b8;
         }
         100% {
           transform: scale(0) rotate(0deg);
           opacity: 0;
-          box-shadow: 0 0 0 #fffb00;
+          box-shadow: none;
         }
+      }
+
+      audio {
+        display: none;
       }
     </style>
   </head>
@@ -353,7 +363,7 @@
           </div>
           <div>Score: <span id="score">0</span></div>
           <div>
-            Time: <span id="time">0</span>/<span id="max-time">60</span>s
+            Time: <span id="time">0</span>/<span id="max-time">40</span>s
           </div>
           <div>Level: <span id="level">1</span></div>
         </div>
@@ -386,10 +396,31 @@
       </div>
 
       <div id="toast"></div>
+
+      <audio id="background-music" loop>
+        <source
+          src="https://www.zapsplat.com/wp-content/uploads/2015/sound-effects-free-to-use-sounds/arcade_music_loop_001.mp3"
+          type="audio/mp3"
+        />
+        Your browser does not support the audio element.
+      </audio>
+      <audio id="trio-sound">
+        <source
+          src="https://www.zapsplat.com/wp-content/uploads/2015/sound-effects-77338/zapsplat_multimedia_game_sound_retro_blip_short_78834.mp3"
+          type="audio/mp3"
+        />
+        Your browser does not support the audio element.
+      </audio>
+      <audio id="victory-sound">
+        <source
+          src="https://www.zapsplat.com/wp-content/uploads/2015/sound-effects-14067/zapsplat_multimedia_game_sound_retro_musical_positive_win_001_16455.mp3"
+          type="audio/mp3"
+        />
+        Your browser does not support the audio element.
+      </audio>
     </div>
 
     <script>
-      // Array de URLs de imágenes aleatorias como placeholders (8 tipos)
       const cardImages = [
         "/public/Card1.png",
         "/public/Card2.png",
@@ -399,6 +430,8 @@
         "/public/Card6.png",
         "/public/Card7.png",
         "/public/Card8.png",
+        "/public/Card9.png",
+        "/public/Card10.png",
       ];
 
       let tiles = [];
@@ -409,7 +442,8 @@
       let lives = 3;
       let score = 0;
       let timer;
-      const MAX_TIME = 60;
+      const BASE_TIME = 40;
+      let isMuted = false; // Track mute state
 
       const levelConfig = [
         { layers: 2, width: 3, height: 3, baseTiles: 9, totalTiles: 18 },
@@ -418,7 +452,24 @@
         { layers: 3, width: 4, height: 5, baseTiles: 20, totalTiles: 51 },
         { layers: 3, width: 5, height: 5, baseTiles: 25, totalTiles: 66 },
         { layers: 4, width: 5, height: 5, baseTiles: 25, totalTiles: 87 },
+        { layers: 4, width: 6, height: 5, baseTiles: 30, totalTiles: 108 },
+        { layers: 5, width: 6, height: 6, baseTiles: 36, totalTiles: 135 },
+        { layers: 5, width: 7, height: 6, baseTiles: 42, totalTiles: 165 },
+        { layers: 6, width: 7, height: 7, baseTiles: 49, totalTiles: 198 },
       ];
+
+      const backgroundMusic = document.getElementById("background-music");
+      const trioSound = document.getElementById("trio-sound");
+      const victorySound = document.getElementById("victory-sound");
+
+      // Set up Farcade SDK listeners
+      window.FarcadeSDK.on("play_again", () => {
+        resetGame();
+      });
+
+      window.FarcadeSDK.on("toggle_mute", (data) => {
+        setMuted(data.isMuted);
+      });
 
       function startGame() {
         console.log("Starting game...");
@@ -432,6 +483,49 @@
         updateLivesDisplay();
         generateBoard(level);
         startTimer();
+        if (!isMuted) {
+          backgroundMusic.volume = 0.3;
+          backgroundMusic.play();
+        }
+        // Signal game is ready
+        window.FarcadeSDK.singlePlayer.actions.ready();
+      }
+
+      function resetGame() {
+        clearInterval(timer);
+        tiles = [];
+        collectedTiles = [];
+        moves = 0;
+        time = 0;
+        level = 1;
+        lives = 3;
+        score = 0;
+        document.getElementById("game").style.display = "none";
+        document.getElementById("victory").style.display = "none";
+        document.getElementById("game-over").style.display = "none";
+        document.getElementById("lose-screen").style.display = "none";
+        document.getElementById("menu").style.display = "flex";
+        updateLivesDisplay();
+        if (!isMuted) {
+          backgroundMusic.currentTime = 0;
+          backgroundMusic.play();
+        }
+        // Signal game is ready again after reset
+        window.FarcadeSDK.singlePlayer.actions.ready();
+      }
+
+      function setMuted(muted) {
+        isMuted = muted;
+        if (isMuted) {
+          backgroundMusic.pause();
+          trioSound.volume = 0;
+          victorySound.volume = 0;
+        } else {
+          backgroundMusic.volume = 0.3;
+          backgroundMusic.play();
+          trioSound.volume = 0.5;
+          victorySound.volume = 0.7;
+        }
       }
 
       function generateBoard(currentLevel) {
@@ -446,7 +540,8 @@
         time = 0;
         document.getElementById("level").textContent = level;
         document.getElementById("score").textContent = score;
-        document.getElementById("max-time").textContent = MAX_TIME;
+        const maxTime = BASE_TIME + (level - 1) * 10;
+        document.getElementById("max-time").textContent = maxTime;
 
         const config =
           levelConfig[Math.min(currentLevel - 1, levelConfig.length - 1)];
@@ -463,8 +558,8 @@
 
         let tileWidth = 48;
         let tileHeight = 64;
-        let xSpacing = 64;
-        let ySpacing = 80;
+        let xSpacing = 72;
+        let ySpacing = 96;
         const canvasRect = canvas.getBoundingClientRect();
         const canvasHeight = canvasRect.height;
         const canvasWidth = canvasRect.width;
@@ -499,7 +594,7 @@
           for (let x = 0; x < config.width && tileId < baseLayerSize; x++) {
             const tile = {
               id: tileId,
-              imageUrl: tileTrios[tileId], // Usar URL en lugar de icono
+              imageUrl: tileTrios[tileId],
               x: x,
               y: y,
               z: 0,
@@ -571,7 +666,7 @@
         const canvas = document.getElementById("game-canvas");
         const element = document.createElement("div");
         element.className = "tile";
-        element.innerHTML = `<img src="${tile.imageUrl}" alt="Card">`; // Añadir imagen
+        element.innerHTML = `<img src="${tile.imageUrl}" alt="Card">`;
         element.style.width = `${tileWidth}px`;
         element.style.height = `${tileHeight}px`;
         element.style.left = `${tile.x * xSpacing + offsetX}px`;
@@ -623,8 +718,8 @@
         const collectedArea = document.getElementById("collected-cards");
         const element = document.createElement("div");
         element.className = "collected-tile";
-        element.innerHTML = `<img src="${tile.imageUrl}" alt="Card">`; // Añadir imagen
-        element.style.left = `${(collectedTiles.length - 1) * 48}px`;
+        element.innerHTML = `<img src="${tile.imageUrl}" alt="Card">`;
+        element.style.left = `${(collectedTiles.length - 1) * 56}px`;
         collectedArea.appendChild(element);
         tile.collectedElement = element;
       }
@@ -651,6 +746,12 @@
             score += 50;
             updateStats();
             slideCollectedTilesLeft();
+            if (!isMuted) {
+              trioSound.volume = 0.5;
+              trioSound.currentTime = 0;
+              trioSound.play();
+            }
+            window.FarcadeSDK.singlePlayer.actions.hapticFeedback(); // Haptic feedback for trio match
             checkVictory();
             break;
           }
@@ -659,7 +760,7 @@
 
       function slideCollectedTilesLeft() {
         collectedTiles.forEach((tile, index) => {
-          tile.collectedElement.style.left = `${index * 48}px`;
+          tile.collectedElement.style.left = `${index * 56}px`;
         });
       }
 
@@ -672,7 +773,7 @@
           (count) => count >= 3
         );
         if (collectedTiles.length === 7 && !canMakeTrio) {
-          loseLife("Collected area full with no trio!");
+          loseLife("No more moves possible!");
         }
       }
 
@@ -686,10 +787,11 @@
       function startTimer() {
         clearInterval(timer);
         time = 0;
+        const maxTime = BASE_TIME + (level - 1) * 10;
         timer = setInterval(() => {
           time++;
           document.getElementById("time").textContent = time;
-          if (time >= MAX_TIME) {
+          if (time >= maxTime) {
             loseLife("Time ran out!");
           }
         }, 1000);
@@ -709,13 +811,20 @@
       function checkVictory() {
         if (tiles.length === 0 && collectedTiles.length === 0) {
           clearInterval(timer);
-          const remainingTime = MAX_TIME - time;
+          const maxTime = BASE_TIME + (level - 1) * 10;
+          const remainingTime = maxTime - time;
           score += 1000 + remainingTime * 50;
           document.getElementById("game").style.display = "none";
           document.getElementById("victory").style.display = "flex";
           document.getElementById("victory-score").textContent = score;
           document.getElementById("victory-time").textContent = time;
           document.getElementById("victory-moves").textContent = moves;
+          if (!isMuted) {
+            victorySound.volume = 0.7;
+            victorySound.currentTime = 0;
+            victorySound.play();
+          }
+          window.FarcadeSDK.singlePlayer.actions.hapticFeedback(); // Haptic feedback for level victory
         }
       }
 
@@ -733,7 +842,7 @@
         );
 
         if (!canMakeTrio && freeTiles.length > 0 && collectedTiles.length < 7) {
-          loseLife("No moves possible!");
+          loseLife("No more moves possible!");
         }
       }
 
@@ -745,6 +854,11 @@
           document.getElementById("game-over").style.display = "flex";
           document.getElementById("game-over-score").textContent = score;
           document.getElementById("game-over-level").textContent = level;
+          window.FarcadeSDK.singlePlayer.actions.gameOver({ score: score }); // Game over with score
+          if (!isMuted) {
+            backgroundMusic.pause();
+            backgroundMusic.currentTime = 0;
+          }
         } else {
           document.getElementById("lose-screen").style.display = "flex";
           document.getElementById("lose-message").textContent = message;
@@ -770,10 +884,24 @@
 
       function nextLevel() {
         level++;
-        document.getElementById("victory").style.display = "none";
-        document.getElementById("game").style.display = "flex";
-        generateBoard(level);
-        startTimer();
+        if (level > levelConfig.length) {
+          document.getElementById("victory").style.display = "none";
+          document.getElementById("game-over").style.display = "flex";
+          document.getElementById("game-over-score").textContent = score;
+          document.getElementById("game-over-level").textContent = level - 1;
+          document.getElementById("game-over").querySelector("h1").textContent =
+            "YOU WIN!";
+          window.FarcadeSDK.singlePlayer.actions.gameOver({ score: score }); // Game over with score on completion
+          if (!isMuted) {
+            backgroundMusic.pause();
+            backgroundMusic.currentTime = 0;
+          }
+        } else {
+          document.getElementById("victory").style.display = "none";
+          document.getElementById("game").style.display = "flex";
+          generateBoard(level);
+          startTimer();
+        }
       }
 
       function backToMenu() {
@@ -787,6 +915,10 @@
         lives = 3;
         score = 0;
         updateLivesDisplay();
+        if (!isMuted) {
+          backgroundMusic.pause();
+          backgroundMusic.currentTime = 0;
+        }
       }
 
       document.addEventListener("touchstart", (e) => {
