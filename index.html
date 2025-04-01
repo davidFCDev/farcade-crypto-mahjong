@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Crypto Mahjong Trios</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bangers&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        background: #2a2e5a;
+        font-family: Arial, sans-serif;
+      }
+
+      #game-container {
+        width: 100%;
+        max-width: 500px;
+        height: 100vh;
+        max-height: 1000px;
+        position: relative;
+        overflow: hidden;
+        background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)),
+          url("https://www.textures.com/system/gallery/824/824087/preview.jpg")
+            no-repeat center center / cover;
+        border-radius: 10px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+      }
+
+      #menu,
+      #game,
+      #victory,
+      #game-over,
+      #lose-screen {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        color: white;
+      }
+
+      #menu {
+        justify-content: center;
+      }
+
+      #game-canvas {
+        position: relative;
+        width: 100%;
+        height: 65%;
+        perspective: 1000px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .tile {
+        position: absolute;
+        width: 48px;
+        height: 64px;
+        background: #e94560;
+        border: 4px solid #000;
+        border-radius: 5px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s;
+        transform-style: preserve-3d;
+      }
+
+      .tile img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover; /* Ensures images fill the tile */
+      }
+
+      .tile.free:hover {
+        box-shadow: 0 0 10px #0f3460;
+        transform: scale(1.05);
+      }
+
+      .tile.blocked {
+        opacity: 0.7;
+        cursor: not-allowed;
+        box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.8);
+      }
+
+      .stats {
+        padding: 10px;
+        color: white;
+        width: 100%;
+        background: #0f3460;
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        border-bottom: 2px solid #e94560;
+      }
+
+      .stats span {
+        font-weight: bold;
+      }
+
+      .lives {
+        display: flex;
+        gap: 5px;
+      }
+
+      .heart {
+        font-size: 24px;
+      }
+
+      .heart.active {
+        color: #ff4444;
+      }
+
+      .heart.inactive {
+        color: #444;
+      }
+
+      #menu h1 {
+        font-family: "Bangers", cursive;
+        font-size: 80px;
+        color: white;
+        text-shadow: 6px 6px #0f3460, -3px -3px #000;
+        letter-spacing: 2px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      #start-btn {
+        padding: 15px 30px;
+        background: #e94560;
+        color: white;
+        border: 4px solid #0f3460;
+        border-radius: 10px;
+        font-size: 24px;
+        font-weight: bold;
+        text-transform: uppercase;
+        cursor: pointer;
+        transform: rotate(-5deg);
+        text-shadow: 2px 2px #0f3460;
+      }
+
+      #start-btn:hover {
+        background: #ff6b81;
+        transform: rotate(0deg);
+      }
+
+      #rules {
+        width: 80%;
+        background: #0f3460;
+        padding: 20px;
+        border: 6px solid #e94560;
+        border-radius: 12px;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+        font-size: 16px;
+        text-align: left;
+        margin-top: 20px;
+      }
+
+      #rules h3 {
+        margin: 0 0 10px 0;
+        font-family: "Bangers", cursive;
+        font-size: 24px;
+        text-shadow: 2px 2px #000;
+        color: #fffb00;
+      }
+
+      #rules p {
+        margin: 5px 0;
+      }
+
+      #collected-cards {
+        width: 90%;
+        height: 84px;
+        background: #3a4a8a;
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        padding: 10px;
+        box-sizing: border-box;
+        position: absolute;
+        bottom: 20px;
+        border: 6px solid #e94560;
+        border-radius: 12px;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+      }
+
+      .collected-tile {
+        width: 40px;
+        height: 56px;
+        background: #e94560;
+        border: 4px solid #000;
+        border-radius: 5px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: absolute;
+        transition: transform 0.5s ease-in-out, left 0.5s ease-in-out;
+      }
+
+      .collected-tile img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      #toast {
+        position: absolute;
+        top: 20%;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #e94560;
+        color: #fffb00;
+        padding: 15px 25px;
+        border-radius: 10px;
+        border: 4px solid #000;
+        font-size: 18px;
+        font-weight: bold;
+        text-align: center;
+        opacity: 0;
+        transition: opacity 0.5s;
+      }
+
+      #victory,
+      #game-over,
+      #lose-screen {
+        background: rgba(0, 0, 0, 0.8);
+        display: none;
+        justify-content: center;
+        align-items: center;
+      }
+
+      #victory .stats-box {
+        background: #0f3460;
+        padding: 15px;
+        border: 4px solid #e94560;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        text-align: center;
+        margin-bottom: 20px;
+      }
+
+      #lose-screen h2 {
+        margin: 0;
+        font-size: 24px;
+        background: #e94560;
+        padding: 10px 20px;
+        border: 4px solid #000;
+        border-radius: 10px;
+        text-shadow: 2px 2px #0f3460;
+      }
+
+      #game-over h1 {
+        margin: 0;
+        font-size: 48px;
+        background: #e94560;
+        padding: 20px 40px;
+        border: 6px solid #000;
+        border-radius: 15px;
+        text-shadow: 4px 4px #0f3460;
+        transform: rotate(-5deg);
+        position: absolute;
+        top: 20%;
+      }
+
+      #game-over .game-over-details {
+        position: absolute;
+        top: 50%;
+        text-align: center;
+      }
+
+      button {
+        padding: 10px 20px;
+        margin: 10px;
+        background: #0f3460;
+        color: white;
+        border: 4px solid #e94560;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 18px;
+        font-weight: bold;
+        text-transform: uppercase;
+        text-shadow: 2px 2px #000;
+        transform: rotate(-3deg);
+        transition: transform 0.2s, background 0.2s;
+      }
+
+      button:hover {
+        background: #e94560;
+        transform: rotate(0deg);
+      }
+
+      @keyframes trio-match {
+        0% {
+          transform: scale(1) rotate(0deg);
+          opacity: 1;
+          box-shadow: 0 0 0 #fffb00;
+        }
+        20% {
+          transform: scale(1.6) rotate(10deg);
+          opacity: 1;
+          box-shadow: 0 0 25px #fffb00;
+        }
+        40% {
+          transform: scale(1.4) rotate(-10deg);
+          opacity: 0.9;
+          box-shadow: 0 0 15px #fffb00;
+        }
+        60% {
+          transform: scale(1.2) rotate(5deg);
+          opacity: 0.7;
+          box-shadow: 0 0 10px #fffb00;
+        }
+        100% {
+          transform: scale(0) rotate(0deg);
+          opacity: 0;
+          box-shadow: 0 0 0 #fffb00;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="game-container">
+      <div id="menu">
+        <h1><span>Crypto</span><span>Mahjong</span></h1>
+        <button id="start-btn" onclick="startGame()">START</button>
+        <div id="rules">
+          <h3>Rules:</h3>
+          <p>- Match three identical cards</p>
+          <p>- Only top cards can be selected</p>
+          <p>- Reach high score before time runs out or you run out of moves</p>
+          <p>- Lose 3 lives and it's game over!</p>
+        </div>
+      </div>
+
+      <div id="game" style="display: none">
+        <div class="stats">
+          <div class="lives">
+            <span class="heart active">♥</span>
+            <span class="heart active">♥</span>
+            <span class="heart active">♥</span>
+          </div>
+          <div>Score: <span id="score">0</span></div>
+          <div>
+            Time: <span id="time">0</span>/<span id="max-time">60</span>s
+          </div>
+          <div>Level: <span id="level">1</span></div>
+        </div>
+        <div id="game-canvas"></div>
+        <div id="collected-cards"></div>
+      </div>
+
+      <div id="victory">
+        <h1>Level Complete!</h1>
+        <div class="stats-box">
+          <div>Score: <span id="victory-score"></span></div>
+          <div>Time: <span id="victory-time"></span>s</div>
+          <div>Moves: <span id="victory-moves"></span></div>
+        </div>
+        <button onclick="nextLevel()">Next Level</button>
+      </div>
+
+      <div id="game-over">
+        <h1>GAME OVER</h1>
+        <div class="game-over-details">
+          <div>Final Score: <span id="game-over-score"></span></div>
+          <div>Level Reached: <span id="game-over-level"></span></div>
+          <button onclick="backToMenu()">Back to Menu</button>
+        </div>
+      </div>
+
+      <div id="lose-screen">
+        <h2 id="lose-message"></h2>
+        <button id="retry-btn" onclick="retryLevel()">Retry</button>
+      </div>
+
+      <div id="toast"></div>
+    </div>
+
+    <script>
+      // Array de URLs de imágenes aleatorias como placeholders (8 tipos)
+      const cardImages = [
+        "/public/Card1.png",
+        "/public/Card2.png",
+        "/public/Card3.png",
+        "/public/Card4.png",
+        "/public/Card5.png",
+        "/public/Card6.png",
+        "/public/Card7.png",
+        "/public/Card8.png",
+      ];
+
+      let tiles = [];
+      let collectedTiles = [];
+      let moves = 0;
+      let time = 0;
+      let level = 1;
+      let lives = 3;
+      let score = 0;
+      let timer;
+      const MAX_TIME = 60;
+
+      const levelConfig = [
+        { layers: 2, width: 3, height: 3, baseTiles: 9, totalTiles: 18 },
+        { layers: 2, width: 4, height: 4, baseTiles: 16, totalTiles: 30 },
+        { layers: 2, width: 4, height: 5, baseTiles: 20, totalTiles: 36 },
+        { layers: 3, width: 4, height: 5, baseTiles: 20, totalTiles: 51 },
+        { layers: 3, width: 5, height: 5, baseTiles: 25, totalTiles: 66 },
+        { layers: 4, width: 5, height: 5, baseTiles: 25, totalTiles: 87 },
+      ];
+
+      function startGame() {
+        console.log("Starting game...");
+        document.getElementById("menu").style.display = "none";
+        document.getElementById("game-over").style.display = "none";
+        document.getElementById("lose-screen").style.display = "none";
+        document.getElementById("game").style.display = "flex";
+        level = 1;
+        lives = 3;
+        score = 0;
+        updateLivesDisplay();
+        generateBoard(level);
+        startTimer();
+      }
+
+      function generateBoard(currentLevel) {
+        console.log(`Generating board for level ${currentLevel}`);
+        const canvas = document.getElementById("game-canvas");
+        canvas.innerHTML = "";
+        tiles = [];
+        collectedTiles = [];
+        const collectedArea = document.getElementById("collected-cards");
+        collectedArea.innerHTML = "";
+        moves = 0;
+        time = 0;
+        document.getElementById("level").textContent = level;
+        document.getElementById("score").textContent = score;
+        document.getElementById("max-time").textContent = MAX_TIME;
+
+        const config =
+          levelConfig[Math.min(currentLevel - 1, levelConfig.length - 1)];
+        const baseLayerSize = config.baseTiles;
+        const totalTiles = config.totalTiles;
+        const tileTrios = [];
+
+        const triosNeeded = totalTiles / 3;
+        for (let i = 0; i < triosNeeded; i++) {
+          const imageUrl = cardImages[i % cardImages.length];
+          tileTrios.push(imageUrl, imageUrl, imageUrl);
+        }
+        shuffleArray(tileTrios);
+
+        let tileWidth = 48;
+        let tileHeight = 64;
+        let xSpacing = 64;
+        let ySpacing = 80;
+        const canvasRect = canvas.getBoundingClientRect();
+        const canvasHeight = canvasRect.height;
+        const canvasWidth = canvasRect.width;
+        const maxYHeight = config.height * ySpacing + (config.layers - 1) * 24;
+        const maxXWidth = config.width * xSpacing;
+
+        if (
+          currentLevel >= 3 &&
+          (maxYHeight > canvasHeight || maxXWidth > canvasWidth)
+        ) {
+          const scaleFactor = Math.min(
+            canvasHeight / maxYHeight,
+            canvasWidth / maxXWidth,
+            0.8
+          );
+          tileWidth *= scaleFactor;
+          tileHeight *= scaleFactor;
+          xSpacing *= scaleFactor;
+          ySpacing *= scaleFactor;
+        }
+
+        const boardWidth = config.width * xSpacing - xSpacing / 4;
+        const boardHeight =
+          config.height * ySpacing -
+          ySpacing / 4 +
+          (config.layers - 1) * (24 * (tileHeight / 64));
+        const offsetX = (canvasWidth - boardWidth) / 2;
+        const offsetY = (canvasHeight - boardHeight) / 2;
+
+        let tileId = 0;
+        for (let y = 0; y < config.height && tileId < baseLayerSize; y++) {
+          for (let x = 0; x < config.width && tileId < baseLayerSize; x++) {
+            const tile = {
+              id: tileId,
+              imageUrl: tileTrios[tileId], // Usar URL en lugar de icono
+              x: x,
+              y: y,
+              z: 0,
+              element: null,
+              free: true,
+            };
+            tiles.push(tile);
+            createTileElement(
+              tile,
+              offsetX,
+              offsetY,
+              tileWidth,
+              tileHeight,
+              xSpacing,
+              ySpacing
+            );
+            tileId++;
+          }
+        }
+
+        const positions = [];
+        for (let y = 0; y < config.height; y++) {
+          for (let x = 0; x < config.width; x++) {
+            positions.push({ x, y });
+          }
+        }
+        shuffleArray(positions);
+
+        let posIndex = 0;
+        for (let z = 1; z < config.layers && tileId < totalTiles; z++) {
+          const tilesToPlace = Math.min(baseLayerSize, totalTiles - tileId);
+          for (let i = 0; i < tilesToPlace && tileId < totalTiles; i++) {
+            const pos = positions[posIndex % positions.length];
+            posIndex++;
+            const tile = {
+              id: tileId,
+              imageUrl: tileTrios[tileId],
+              x: pos.x,
+              y: pos.y,
+              z: z,
+              element: null,
+              free: true,
+            };
+            tiles.push(tile);
+            createTileElement(
+              tile,
+              offsetX,
+              offsetY,
+              tileWidth,
+              tileHeight,
+              xSpacing,
+              ySpacing
+            );
+            tileId++;
+          }
+        }
+        updateTileStatus();
+      }
+
+      function createTileElement(
+        tile,
+        offsetX,
+        offsetY,
+        tileWidth,
+        tileHeight,
+        xSpacing,
+        ySpacing
+      ) {
+        const canvas = document.getElementById("game-canvas");
+        const element = document.createElement("div");
+        element.className = "tile";
+        element.innerHTML = `<img src="${tile.imageUrl}" alt="Card">`; // Añadir imagen
+        element.style.width = `${tileWidth}px`;
+        element.style.height = `${tileHeight}px`;
+        element.style.left = `${tile.x * xSpacing + offsetX}px`;
+        element.style.top = `${
+          tile.y * ySpacing + offsetY + tile.z * (24 * (tileHeight / 64))
+        }px`;
+        element.style.transform = `translateZ(${
+          tile.z * (24 * (tileHeight / 64))
+        }px)`;
+        element.addEventListener("click", () => selectTile(tile));
+        canvas.appendChild(element);
+        tile.element = element;
+      }
+
+      function updateTileStatus() {
+        tiles.forEach((tile) => {
+          tile.free = !tiles.some(
+            (t) =>
+              t !== tile && t.z > tile.z && t.x === tile.x && t.y === tile.y
+          );
+          tile.element.className = "tile" + (tile.free ? " free" : " blocked");
+        });
+        checkGameState();
+      }
+
+      function selectTile(tile) {
+        if (!tile.free) return;
+
+        if (collectedTiles.length < 7) {
+          moveToCollected(tile);
+          moves++;
+          updateStats();
+          checkTrio();
+          if (collectedTiles.length === 7) {
+            checkCollectedForLoss();
+          }
+        }
+      }
+
+      function moveToCollected(tile) {
+        tiles = tiles.filter((t) => t !== tile);
+        tile.element.remove();
+        collectedTiles.push(tile);
+        createCollectedTileElement(tile);
+        updateTileStatus();
+      }
+
+      function createCollectedTileElement(tile) {
+        const collectedArea = document.getElementById("collected-cards");
+        const element = document.createElement("div");
+        element.className = "collected-tile";
+        element.innerHTML = `<img src="${tile.imageUrl}" alt="Card">`; // Añadir imagen
+        element.style.left = `${(collectedTiles.length - 1) * 48}px`;
+        collectedArea.appendChild(element);
+        tile.collectedElement = element;
+      }
+
+      function checkTrio() {
+        const imageCounts = {};
+        collectedTiles.forEach((tile) => {
+          imageCounts[tile.imageUrl] = (imageCounts[tile.imageUrl] || 0) + 1;
+        });
+
+        for (const [imageUrl, count] of Object.entries(imageCounts)) {
+          if (count >= 3) {
+            const toRemove = collectedTiles
+              .filter((t) => t.imageUrl === imageUrl)
+              .slice(0, 3);
+            toRemove.forEach((tile) => {
+              tile.collectedElement.style.animation =
+                "trio-match 0.8s forwards";
+              setTimeout(() => tile.collectedElement.remove(), 800);
+            });
+            collectedTiles = collectedTiles.filter(
+              (t) => !toRemove.includes(t)
+            );
+            score += 50;
+            updateStats();
+            slideCollectedTilesLeft();
+            checkVictory();
+            break;
+          }
+        }
+      }
+
+      function slideCollectedTilesLeft() {
+        collectedTiles.forEach((tile, index) => {
+          tile.collectedElement.style.left = `${index * 48}px`;
+        });
+      }
+
+      function checkCollectedForLoss() {
+        const imageCounts = {};
+        collectedTiles.forEach((tile) => {
+          imageCounts[tile.imageUrl] = (imageCounts[tile.imageUrl] || 0) + 1;
+        });
+        const canMakeTrio = Object.values(imageCounts).some(
+          (count) => count >= 3
+        );
+        if (collectedTiles.length === 7 && !canMakeTrio) {
+          loseLife("Collected area full with no trio!");
+        }
+      }
+
+      function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [array[i], array[j]] = [array[j], array[i]];
+        }
+      }
+
+      function startTimer() {
+        clearInterval(timer);
+        time = 0;
+        timer = setInterval(() => {
+          time++;
+          document.getElementById("time").textContent = time;
+          if (time >= MAX_TIME) {
+            loseLife("Time ran out!");
+          }
+        }, 1000);
+      }
+
+      function updateStats() {
+        document.getElementById("score").textContent = score;
+      }
+
+      function updateLivesDisplay() {
+        const hearts = document.querySelectorAll(".heart");
+        hearts.forEach((heart, index) => {
+          heart.className = "heart" + (index < lives ? " active" : " inactive");
+        });
+      }
+
+      function checkVictory() {
+        if (tiles.length === 0 && collectedTiles.length === 0) {
+          clearInterval(timer);
+          const remainingTime = MAX_TIME - time;
+          score += 1000 + remainingTime * 50;
+          document.getElementById("game").style.display = "none";
+          document.getElementById("victory").style.display = "flex";
+          document.getElementById("victory-score").textContent = score;
+          document.getElementById("victory-time").textContent = time;
+          document.getElementById("victory-moves").textContent = moves;
+        }
+      }
+
+      function checkGameState() {
+        const freeTiles = tiles.filter((t) => t.free);
+        const canMakeTrio = freeTiles.some(
+          (t1) =>
+            freeTiles.some((t2) => t1 !== t2 && t1.imageUrl === t2.imageUrl) ||
+            collectedTiles.some(
+              (t) =>
+                t.imageUrl === t1.imageUrl &&
+                collectedTiles.filter((ct) => ct.imageUrl === t.imageUrl)
+                  .length >= 1
+            )
+        );
+
+        if (!canMakeTrio && freeTiles.length > 0 && collectedTiles.length < 7) {
+          loseLife("No moves possible!");
+        }
+      }
+
+      function loseLife(message) {
+        lives--;
+        clearInterval(timer);
+        document.getElementById("game").style.display = "none";
+        if (lives <= 0) {
+          document.getElementById("game-over").style.display = "flex";
+          document.getElementById("game-over-score").textContent = score;
+          document.getElementById("game-over-level").textContent = level;
+        } else {
+          document.getElementById("lose-screen").style.display = "flex";
+          document.getElementById("lose-message").textContent = message;
+        }
+        updateLivesDisplay();
+      }
+
+      function retryLevel() {
+        document.getElementById("lose-screen").style.display = "none";
+        document.getElementById("game").style.display = "flex";
+        generateBoard(level);
+        startTimer();
+      }
+
+      function showToast(message) {
+        const toast = document.getElementById("toast");
+        toast.textContent = message;
+        toast.style.opacity = "1";
+        setTimeout(() => {
+          toast.style.opacity = "0";
+        }, 2000);
+      }
+
+      function nextLevel() {
+        level++;
+        document.getElementById("victory").style.display = "none";
+        document.getElementById("game").style.display = "flex";
+        generateBoard(level);
+        startTimer();
+      }
+
+      function backToMenu() {
+        clearInterval(timer);
+        document.getElementById("game").style.display = "none";
+        document.getElementById("victory").style.display = "none";
+        document.getElementById("game-over").style.display = "none";
+        document.getElementById("lose-screen").style.display = "none";
+        document.getElementById("menu").style.display = "flex";
+        level = 1;
+        lives = 3;
+        score = 0;
+        updateLivesDisplay();
+      }
+
+      document.addEventListener("touchstart", (e) => {
+        const touch = e.touches[0];
+        const tileElement = document.elementFromPoint(
+          touch.clientX,
+          touch.clientY
+        );
+        if (tileElement && tileElement.classList.contains("tile")) {
+          const tile = tiles.find((t) => t.element === tileElement);
+          if (tile) selectTile(tile);
+        }
+      });
+    </script>
+  </body>
+</html>
