@@ -8,8 +8,7 @@
       href="https://fonts.googleapis.com/css2?family=Bangers&display=swap"
       rel="stylesheet"
     />
-    <!-- Add Farcade SDK Script -->
-    <script src="https://unpkg.com/@farcade/game-sdk@latest/dist/index.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@farcade/game-sdk@latest/dist/index.min.js"></script>
     <style>
       body {
         margin: 0;
@@ -30,7 +29,8 @@
         position: relative;
         overflow: hidden;
         background: linear-gradient(rgba(0, 0, 0, 0.849), rgba(0, 0, 0, 0.904)),
-          url("/public/817.jpg") no-repeat center center / cover;
+          url("https://lqy3lriiybxcejon.public.blob.vercel-storage.com/TmD6CdLxUZyd/Fondo-F4UwvAr9tV3053Dy63JOlqLrF9TeFp.png?Qj3T")
+            no-repeat center center / cover;
         border-radius: 10px;
         box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
       }
@@ -38,12 +38,12 @@
       #menu,
       #game,
       #victory,
-      #game-over,
       #lose-screen {
         position: absolute;
         width: 100%;
         height: 100%;
         display: flex;
+        gap: 0.5rem;
         flex-direction: column;
         align-items: center;
         color: white;
@@ -56,7 +56,8 @@
       #game-canvas {
         position: relative;
         width: 100%;
-        height: 65%;
+        height: calc(100% - 250px);
+        top: 80px;
         perspective: 1000px;
         display: flex;
         justify-content: center;
@@ -65,36 +66,39 @@
 
       .tile {
         position: absolute;
-        width: 48px;
-        height: 64px;
-        background: #f5f5e1;
-        border: 2px solid #000;
-        border-radius: 4px;
+        width: 120px; /* aumentado de 85px a 120px */
+        height: 150px; /* aumentado de 110px a 150px */
+        background: #ffffff;
+        border: 2px solid #000000;
+        border-radius: 8px; /* aumentado ligeramente el radio para proporciones */
         display: flex;
         align-items: center;
         justify-content: center;
         cursor: pointer;
-        transition: all 0.2s;
+        transition: transform 0.15s ease, border-color 0.15s ease;
         transform-style: preserve-3d;
-        box-shadow: 4px 4px 0 #000;
       }
 
       .tile img {
-        width: 100%;
-        height: 100%;
+        width: 92%;
+        height: 92%;
         object-fit: cover;
-        border: 1px solid #000;
+        border: none;
+        border-radius: 3px;
+        pointer-events: none;
       }
 
       .tile.free:hover {
-        box-shadow: 4px 4px 0 #000, 0 0 10px #0b0c1a;
-        transform: scale(1.05);
+        transform: translateY(-2px) scale(1.03);
+        border-color: #b81f24;
+        background: #fff;
       }
 
       .tile.blocked {
-        opacity: 0.6;
+        opacity: 0.5;
         cursor: not-allowed;
-        box-shadow: 4px 4px 0 #000, inset 0 0 30px rgba(0, 0, 0, 1);
+        background: #f0f0f0;
+        border-color: #999;
       }
 
       .stats {
@@ -103,26 +107,42 @@
         width: 100%;
         background: #0b0c1a;
         display: flex;
-        justify-content: space-around;
+        justify-content: center;
         align-items: center;
-        border-bottom: 3px solid #e945b8;
+        gap: 0.7rem;
+        border-bottom: 3px solid #b81f24;
       }
 
       .stats span {
         font-weight: bold;
       }
 
+      #timer-container {
+        position: absolute;
+        top: 60px;
+        right: 5px;
+        background: #b81f24;
+        color: white;
+        padding: 5px 10px;
+        border: 3px solid #0b0c1a;
+        border-radius: 15px;
+        font-size: 16px;
+        font-weight: bold;
+        text-shadow: 2px 2px #0b0c1a;
+        box-shadow: 4px 4px 0 #000;
+      }
+
       .lives {
         display: flex;
-        gap: 5px;
+        gap: 2px;
       }
 
       .heart {
-        font-size: 32px;
+        font-size: 28px;
       }
 
       .heart.active {
-        color: #e945b8;
+        color: #b81f24;
       }
 
       .heart.inactive {
@@ -131,44 +151,50 @@
 
       #menu h1 {
         font-family: "Bangers", cursive;
-        font-size: 80px;
+        font-size: 56px; /* further reduced title */
         color: white;
         text-shadow: 6px 6px #0b0c1a, -3px -3px #000;
-        letter-spacing: 2px;
+        letter-spacing: 1px;
         display: flex;
         flex-direction: column;
         align-items: center;
+        margin: 0 0 14px 0; /* increased spacing below title */
       }
 
+      button,
       #start-btn {
         padding: 15px 30px;
-        background: #e945b8;
+        background: #b81f24;
         color: white;
-        border: 4px solid #0b0c1a;
-        border-radius: 10px;
+        border: 6px solid #0b0c1a;
+        border-radius: 12px;
         font-size: 24px;
         font-weight: bold;
         text-transform: uppercase;
         cursor: pointer;
-        transform: rotate(-5deg);
-        text-shadow: 2px 2px #0b0c1a;
+        text-shadow: 3px 3px #0b0c1a;
+        box-shadow: 6px 6px 0 #000;
+        transform: rotate(-3deg);
+        transition: transform 0.2s, background 0.2s, box-shadow 0.2s;
       }
 
+      button:hover,
       #start-btn:hover {
-        background: #ff6bdf;
+        background: #e53935;
         transform: rotate(0deg);
+        box-shadow: 8px 8px 0 #000, 0 0 15px rgba(232, 57, 53, 0.75);
       }
 
       #rules {
         width: 80%;
         background: #0b0c1a;
-        padding: 20px;
-        border: 4px solid #e945b8;
+        padding: 14px 16px; /* reduced padding */
+        border: 4px solid #b81f24;
         border-radius: 12px;
         box-shadow: 0 0 15px #000;
-        font-size: 16px;
+        font-size: 15px; /* slightly smaller */
         text-align: left;
-        margin-top: 20px;
+        margin-top: 16px; /* increased spacing above rules */
       }
 
       #rules h3 {
@@ -176,7 +202,7 @@
         font-family: "Bangers", cursive;
         font-size: 24px;
         text-shadow: 2px 2px #000;
-        color: #fffb00;
+        color: #d0d4d8; /* replaced yellow with neutral light tone */
         letter-spacing: 2px;
       }
 
@@ -185,24 +211,27 @@
       }
 
       #collected-cards {
-        width: 90%;
+        width: 81%;
         height: 84px;
         background: #0b0c1a;
         display: flex;
         justify-content: flex-start;
         align-items: center;
         padding: 10px;
+        gap: 0.1rem;
         box-sizing: border-box;
         position: absolute;
-        bottom: 20px;
-        border: 3px solid #e945b8;
+        bottom: -10px;
+        border-right: 3px solid #b81f24;
+        border-left: 3px solid #b81f24;
+        border-top: 3px solid #b81f24;
         border-radius: 12px;
         box-shadow: 0 0 15px #000;
       }
 
       .collected-tile {
-        width: 50px;
-        height: 66px;
+        width: calc((100% - 20px) / 5);
+        height: 70px;
         background: #f5f5e1;
         border: 2px solid #000;
         border-radius: 4px;
@@ -223,23 +252,80 @@
 
       #toast {
         position: absolute;
-        top: 20%;
+        top: 50%;
         left: 50%;
-        transform: translateX(-50%);
-        background: #e945b8;
-        color: #fffb00;
-        padding: 15px 25px;
-        border-radius: 10px;
-        border: 4px solid #000;
-        font-size: 18px;
+        transform: translate(-50%, -50%);
+        background: #b81f24;
+        color: #ffffff;
+        padding: 8px 14px;
+        border-radius: 8px;
+        border: 3px solid #000;
+        font-size: 14px;
         font-weight: bold;
         text-align: center;
         opacity: 0;
-        transition: opacity 0.5s;
+        transition: opacity 0.4s;
+        max-width: 260px;
+        line-height: 1.2;
+      }
+
+      /* Power-ups bar (freeze time + key) */
+      #powerups-bar {
+        position: absolute;
+        bottom: 72px; /* just above collected area */
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 20px;
+        z-index: 6;
+        pointer-events: none;
+      }
+      #powerups-bar .power-btn {
+        width: 38px;
+        height: 38px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 2px solid #000;
+        border-radius: 10px;
+        background: #b81f24;
+        color: #fff;
+        cursor: pointer;
+        box-shadow: 4px 4px 0 #000;
+        transition: transform 0.2s, box-shadow 0.2s, background 0.25s,
+          filter 0.3s;
+        pointer-events: auto;
+      }
+      #powerups-bar .power-btn:hover:not(.disabled) {
+        transform: translateY(-4px) scale(1.08);
+        box-shadow: 6px 6px 0 #000, 0 0 10px rgba(255, 255, 255, 0.18);
+      }
+      #powerups-bar .power-btn.disabled {
+        background: #555;
+        cursor: not-allowed;
+        filter: grayscale(80%);
+        box-shadow: 0 0 0 #000;
+        transform: none;
+      }
+      #powerups-bar .power-btn img {
+        width: 70%;
+        height: 70%;
+        object-fit: contain;
+        filter: drop-shadow(2px 2px 0 #000);
+        pointer-events: none;
+      }
+      @media (max-width: 900px) {
+        #powerups-bar {
+          gap: 14px;
+          bottom: 78px;
+        }
+        #powerups-bar .power-btn {
+          width: 34px;
+          height: 34px;
+        }
       }
 
       #victory,
-      #game-over,
       #lose-screen {
         background: rgba(0, 0, 0, 0.8);
         display: none;
@@ -249,84 +335,60 @@
 
       #victory .stats-box {
         background: #0b0c1a;
-        padding: 15px;
-        border: 4px solid #e945b8;
-        border-radius: 10px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        padding: 20px;
+        border: 4px solid #000; /* cambiado a negro */
+        border-radius: 15px;
+        box-shadow: 6px 6px 0 #000;
         text-align: center;
         margin-bottom: 20px;
-      }
-
-      #lose-screen h2 {
-        margin: 0;
-        font-size: 24px;
-        background: #e945b8;
-        padding: 10px 20px;
-        border: 4px solid #000;
-        border-radius: 10px;
+        color: white;
+        font-size: 20px;
         text-shadow: 2px 2px #0b0c1a;
       }
 
-      #game-over h1 {
-        margin: 0;
-        font-size: 48px;
-        background: #e945b8;
-        padding: 20px 40px;
-        border: 4px solid #000;
-        border-radius: 15px;
-        text-shadow: 4px 4px #0b0c1a;
-        transform: rotate(-5deg);
-        position: absolute;
-        top: 20%;
-      }
-
-      #game-over .game-over-details {
-        position: absolute;
-        top: 50%;
-        text-align: center;
-      }
-
-      button {
-        padding: 10px 20px;
-        margin: 10px;
-        background: #0b0c1a;
-        color: white;
-        border: 2px solid #e945b8;
-        border-radius: 8px;
-        cursor: pointer;
-        font-size: 18px;
+      #victory .stats-box div {
+        margin: 10px 0;
         font-weight: bold;
-        text-transform: uppercase;
-        text-shadow: 2px 2px #000;
-        transform: rotate(-3deg);
-        transition: transform 0.2s, background 0.2s;
       }
 
-      button:hover {
-        background: #e945b8;
-        transform: rotate(0deg);
+      /* Estilo de título simple en pantalla de victoria */
+      #victory .victory-title {
+        font-family: "Bangers", cursive;
+        font-size: 40px;
+        color: #fff;
+        text-shadow: 3px 3px 0 #000, 0 0 8px rgba(0, 0, 0, 0.6);
+        letter-spacing: 0.5px;
+        margin-bottom: 10px;
+      }
+
+      #lose-screen .comic-bubble {
+        font-size: 20px; /* smaller lose messages */
+        padding: 12px 20px; /* tighter padding */
+        text-align: center;
+        line-height: 1.25;
+        max-width: 280px;
       }
 
       @keyframes trio-match {
         0% {
           transform: scale(1) rotate(0deg);
           opacity: 1;
-          box-shadow: 4px 4px 0 #000;
+          box-shadow: 6px 6px 0 #000;
         }
         20% {
           transform: scale(1.6) rotate(10deg);
           opacity: 1;
-          box-shadow: 4px 4px 0 #000, 0 0 25px #e945b8;
+          box-shadow: 6px 6px 0 #000, 0 0 25px #b81f24;
         }
         40% {
           transform: scale(1.4) rotate(-10deg);
           opacity: 0.9;
-          box-shadow: 4px 4px 0 #000, 0 0 15px #e945b8;
+          box-shadow: 6px 6px 0 #000, 0 0 15px #b81f24;
         }
         60% {
           transform: scale(1.2) rotate(5deg);
           opacity: 0.7;
-          box-shadow: 4px 4px 0 #000, 0 0 10px #e945b8;
+          box-shadow: 6px 6px 0 #000, 0 0 10px #b81f24;
         }
         100% {
           transform: scale(0) rotate(0deg);
@@ -351,6 +413,8 @@
           <p>- Only top cards can be selected</p>
           <p>- Reach high score before time runs out or you run out of moves</p>
           <p>- Lose 3 lives and it's game over!</p>
+          <p>- Freeze Time (clock): stop the countdown once per game</p>
+          <p>- Key Power (key): remove the best trio instantly once per game</p>
         </div>
       </div>
 
@@ -361,18 +425,40 @@
             <span class="heart active">♥</span>
             <span class="heart active">♥</span>
           </div>
-          <div>Score: <span id="score">0</span></div>
-          <div>
-            Time: <span id="time">0</span>/<span id="max-time">40</span>s
-          </div>
           <div>Level: <span id="level">1</span></div>
+          <div>Score: <span id="score">0</span></div>
+        </div>
+        <div id="timer-container">
+          <div><span id="time">0</span></div>
         </div>
         <div id="game-canvas"></div>
+        <div id="powerups-bar">
+          <div
+            id="freeze-time-btn"
+            class="power-btn"
+            title="Freeze time (one use)"
+          >
+            <img
+              src="https://lqy3lriiybxcejon.public.blob.vercel-storage.com/zS0QCi0PfUjO/Pixel%20Clock-Pd21FxDg7D1P8qyn2yDfDGlZiNN4Qv.png?dh2k"
+              alt="Freeze"
+            />
+          </div>
+          <div
+            id="hint-btn"
+            class="power-btn"
+            title="Key (remove optimal trio)"
+          >
+            <img
+              src="https://lqy3lriiybxcejon.public.blob.vercel-storage.com/zS0QCi0PfUjO/key-vOGnBfYwDjzhs50sbdRO3W5uujvIxO.png?9A8o"
+              alt="Key"
+            />
+          </div>
+        </div>
         <div id="collected-cards"></div>
       </div>
 
       <div id="victory">
-        <h1>Level Complete!</h1>
+        <div class="victory-title">Congratulations!</div>
         <div class="stats-box">
           <div>Score: <span id="victory-score"></span></div>
           <div>Time: <span id="victory-time"></span>s</div>
@@ -381,57 +467,45 @@
         <button onclick="nextLevel()">Next Level</button>
       </div>
 
-      <div id="game-over">
-        <h1>GAME OVER</h1>
-        <div class="game-over-details">
-          <div>Final Score: <span id="game-over-score"></span></div>
-          <div>Level Reached: <span id="game-over-level"></span></div>
-          <button onclick="backToMenu()">Back to Menu</button>
-        </div>
-      </div>
-
       <div id="lose-screen">
-        <h2 id="lose-message"></h2>
+        <div class="comic-bubble" id="lose-message"></div>
         <button id="retry-btn" onclick="retryLevel()">Retry</button>
       </div>
 
       <div id="toast"></div>
 
-      <audio id="background-music" loop>
-        <source
-          src="https://www.zapsplat.com/wp-content/uploads/2015/sound-effects-free-to-use-sounds/arcade_music_loop_001.mp3"
-          type="audio/mp3"
-        />
-        Your browser does not support the audio element.
-      </audio>
       <audio id="trio-sound">
         <source
-          src="https://www.zapsplat.com/wp-content/uploads/2015/sound-effects-77338/zapsplat_multimedia_game_sound_retro_blip_short_78834.mp3"
+          src="https://lqy3lriiybxcejon.public.blob.vercel-storage.com/TmD6CdLxUZyd/sound1-ypKOdJ7EZ6bOdykWT0QUtJbEeem9aX.mpeg?QwZS"
           type="audio/mp3"
         />
         Your browser does not support the audio element.
       </audio>
       <audio id="victory-sound">
         <source
-          src="https://www.zapsplat.com/wp-content/uploads/2015/sound-effects-14067/zapsplat_multimedia_game_sound_retro_musical_positive_win_001_16455.mp3"
+          src="https://lqy3lriiybxcejon.public.blob.vercel-storage.com/TmD6CdLxUZyd/winning-IBSP65T5Dl3HA4iWSGI8XV2LpUkYVA.mpeg?Btp6"
           type="audio/mp3"
         />
+        Your browser does not support the audio element.
+      </audio>
+      <audio id="background-music" loop>
+        <!-- La rotación de pistas se gestiona vía JS; el elemento inicia sin <source> fijo -->
         Your browser does not support the audio element.
       </audio>
     </div>
 
     <script>
       const cardImages = [
-        "/public/Card1.png",
-        "/public/Card2.png",
-        "/public/Card3.png",
-        "/public/Card4.png",
-        "/public/Card5.png",
-        "/public/Card6.png",
-        "/public/Card7.png",
-        "/public/Card8.png",
-        "/public/Card9.png",
-        "/public/Card10.png",
+        "https://lqy3lriiybxcejon.public.blob.vercel-storage.com/TmD6CdLxUZyd/Card1-Rok18oWVG3JikuDnfPItrj80f59Igo.png?IUIY",
+        "https://lqy3lriiybxcejon.public.blob.vercel-storage.com/TmD6CdLxUZyd/Card2-HpBNIwHejdMxwekYjHMDow7sJx9eQb.png?OsIm",
+        "https://lqy3lriiybxcejon.public.blob.vercel-storage.com/TmD6CdLxUZyd/Card3-vJZMcmeZ3EQHqrUCjMvt6oIpzf8VSY.png?BYjY",
+        "https://lqy3lriiybxcejon.public.blob.vercel-storage.com/TmD6CdLxUZyd/Card4-rZBaNFekDPFqvU0vrPpLPbiW0iAMje.png?6DQ9",
+        "https://lqy3lriiybxcejon.public.blob.vercel-storage.com/TmD6CdLxUZyd/Card5-p7RElqs2oi3deYhq40q6KKFjIYhu0i.png?LUyG",
+        "https://lqy3lriiybxcejon.public.blob.vercel-storage.com/TmD6CdLxUZyd/Card6-AkDFwqtgytFV7adAv2cKxPpz4UZlDX.png?ROMI",
+        "https://lqy3lriiybxcejon.public.blob.vercel-storage.com/TmD6CdLxUZyd/Card7-6smjbrbzZ7yvywYjePGp4dvMVhIkx2.png?cvTc",
+        "https://lqy3lriiybxcejon.public.blob.vercel-storage.com/TmD6CdLxUZyd/Card8-u2fsng3hPZuJ1HF4P7SGeAyZvWM9go.png?rOno",
+        "https://lqy3lriiybxcejon.public.blob.vercel-storage.com/TmD6CdLxUZyd/Card9-JrmnInFmDbUJluy96pdsItGg16dcx6.png?pEav",
+        "https://lqy3lriiybxcejon.public.blob.vercel-storage.com/TmD6CdLxUZyd/Card10-Ji9VsLljctrbevQGqh58H4LmA5I75s.png?Uc2U",
       ];
 
       let tiles = [];
@@ -443,26 +517,52 @@
       let score = 0;
       let timer;
       const BASE_TIME = 40;
-      let isMuted = false; // Track mute state
+      let isMuted = false;
+      // Power-up flags
+      let timeFreezeUsed = false;
+      let timerFrozen = false;
+      let hintUsed = false;
+      // Control de selección única (simplificado)
+      let selectedTileId = null;
 
       const levelConfig = [
         { layers: 2, width: 3, height: 3, baseTiles: 9, totalTiles: 18 },
-        { layers: 2, width: 4, height: 4, baseTiles: 16, totalTiles: 30 },
-        { layers: 2, width: 4, height: 5, baseTiles: 20, totalTiles: 36 },
-        { layers: 3, width: 4, height: 5, baseTiles: 20, totalTiles: 51 },
-        { layers: 3, width: 5, height: 5, baseTiles: 25, totalTiles: 66 },
-        { layers: 4, width: 5, height: 5, baseTiles: 25, totalTiles: 87 },
-        { layers: 4, width: 6, height: 5, baseTiles: 30, totalTiles: 108 },
-        { layers: 5, width: 6, height: 6, baseTiles: 36, totalTiles: 135 },
-        { layers: 5, width: 7, height: 6, baseTiles: 42, totalTiles: 165 },
-        { layers: 6, width: 7, height: 7, baseTiles: 49, totalTiles: 198 },
+        { layers: 3, width: 4, height: 4, baseTiles: 16, totalTiles: 30 },
+        { layers: 4, width: 4, height: 4, baseTiles: 16, totalTiles: 36 },
+        { layers: 5, width: 4, height: 4, baseTiles: 16, totalTiles: 51 },
+        { layers: 6, width: 4, height: 4, baseTiles: 16, totalTiles: 66 },
+        { layers: 7, width: 4, height: 4, baseTiles: 16, totalTiles: 87 },
+        { layers: 8, width: 4, height: 4, baseTiles: 16, totalTiles: 108 },
+        { layers: 9, width: 4, height: 4, baseTiles: 16, totalTiles: 135 },
+        { layers: 10, width: 4, height: 4, baseTiles: 16, totalTiles: 165 },
+        { layers: 11, width: 4, height: 4, baseTiles: 16, totalTiles: 198 },
       ];
 
       const backgroundMusic = document.getElementById("background-music");
+      // Playlist de música de fondo (rotación)
+      const backgroundPlaylist = [
+        "https://lqy3lriiybxcejon.public.blob.vercel-storage.com/zS0QCi0PfUjO/tricky-fox-188090-f9OI5Yaab8QwXpiUizDUYiuNiclZ6X.mp3?VcDs",
+        "https://lqy3lriiybxcejon.public.blob.vercel-storage.com/zS0QCi0PfUjO/puzzle-game-bright-casual-video-game-music-249202-IXpAPoNLmHQvesMUnyIFRnJ9yDfOzl.mp3?yAAE",
+      ];
+      let currentTrackIndex = -1; // se avanzará a 0 en primer arranque
       const trioSound = document.getElementById("trio-sound");
       const victorySound = document.getElementById("victory-sound");
 
-      // Set up Farcade SDK listeners
+      function playAudio(audioElement, volume) {
+        if (audioElement) {
+          audioElement.volume = volume;
+          audioElement
+            .play()
+            .catch((e) => console.log("Error playing audio:", e));
+        }
+      }
+
+      function pauseAudio(audioElement) {
+        if (audioElement) {
+          audioElement.pause();
+        }
+      }
+
       window.FarcadeSDK.on("play_again", () => {
         resetGame();
       });
@@ -474,20 +574,26 @@
       function startGame() {
         console.log("Starting game...");
         document.getElementById("menu").style.display = "none";
-        document.getElementById("game-over").style.display = "none";
         document.getElementById("lose-screen").style.display = "none";
         document.getElementById("game").style.display = "flex";
         level = 1;
         lives = 3;
         score = 0;
+        // Resetear controles de selección
+        selectedTileId = null;
         updateLivesDisplay();
         generateBoard(level);
         startTimer();
-        if (!isMuted) {
-          backgroundMusic.volume = 0.3;
-          backgroundMusic.play();
+        timeFreezeUsed = false;
+        timerFrozen = false;
+        hintUsed = false;
+        const freezeBtn = document.getElementById("freeze-time-btn");
+        if (freezeBtn) freezeBtn.classList.remove("disabled");
+        const hintBtn = document.getElementById("hint-btn");
+        if (hintBtn) hintBtn.classList.remove("disabled");
+        if (!isMuted && backgroundMusic) {
+          queueNextBackgroundTrack(true); // seleccionar y reproducir siguiente pista
         }
-        // Signal game is ready
         window.FarcadeSDK.singlePlayer.actions.ready();
       }
 
@@ -502,29 +608,32 @@
         score = 0;
         document.getElementById("game").style.display = "none";
         document.getElementById("victory").style.display = "none";
-        document.getElementById("game-over").style.display = "none";
         document.getElementById("lose-screen").style.display = "none";
         document.getElementById("menu").style.display = "flex";
         updateLivesDisplay();
-        if (!isMuted) {
+        if (!isMuted && backgroundMusic) {
           backgroundMusic.currentTime = 0;
-          backgroundMusic.play();
+          queueNextBackgroundTrack(true);
         }
-        // Signal game is ready again after reset
         window.FarcadeSDK.singlePlayer.actions.ready();
       }
 
       function setMuted(muted) {
         isMuted = muted;
         if (isMuted) {
-          backgroundMusic.pause();
-          trioSound.volume = 0;
-          victorySound.volume = 0;
+          pauseAudio(backgroundMusic);
+          if (trioSound) trioSound.volume = 0;
+          if (victorySound) victorySound.volume = 0;
         } else {
-          backgroundMusic.volume = 0.3;
-          backgroundMusic.play();
-          trioSound.volume = 0.5;
-          victorySound.volume = 0.7;
+          if (backgroundMusic) {
+            if (!backgroundMusic.src) {
+              queueNextBackgroundTrack(true);
+            } else {
+              playAudio(backgroundMusic, 0.3);
+            }
+          }
+          if (trioSound) trioSound.volume = 0.5;
+          if (victorySound) victorySound.volume = 0.7;
         }
       }
 
@@ -541,57 +650,132 @@
         document.getElementById("level").textContent = level;
         document.getElementById("score").textContent = score;
         const maxTime = BASE_TIME + (level - 1) * 10;
-        document.getElementById("max-time").textContent = maxTime;
+        document.getElementById("time").textContent = maxTime;
 
         const config =
           levelConfig[Math.min(currentLevel - 1, levelConfig.length - 1)];
-        const baseLayerSize = config.baseTiles;
         const totalTiles = config.totalTiles;
-        const tileTrios = [];
+        const baseSize = config.width * config.height;
 
         const triosNeeded = totalTiles / 3;
+        const tileTrios = [];
         for (let i = 0; i < triosNeeded; i++) {
           const imageUrl = cardImages[i % cardImages.length];
           tileTrios.push(imageUrl, imageUrl, imageUrl);
         }
         shuffleArray(tileTrios);
 
-        let tileWidth = 48;
-        let tileHeight = 64;
-        let xSpacing = 72;
-        let ySpacing = 96;
-        const canvasRect = canvas.getBoundingClientRect();
-        const canvasHeight = canvasRect.height;
-        const canvasWidth = canvasRect.width;
-        const maxYHeight = config.height * ySpacing + (config.layers - 1) * 24;
-        const maxXWidth = config.width * xSpacing;
-
-        if (
-          currentLevel >= 3 &&
-          (maxYHeight > canvasHeight || maxXWidth > canvasWidth)
-        ) {
-          const scaleFactor = Math.min(
-            canvasHeight / maxYHeight,
-            canvasWidth / maxXWidth,
-            0.8
-          );
-          tileWidth *= scaleFactor;
-          tileHeight *= scaleFactor;
-          xSpacing *= scaleFactor;
-          ySpacing *= scaleFactor;
+        // -------- LÓGICA DE ESCALADO Y ZONA SEGURA OPTIMIZADA --------
+        // Márgenes seguros reducidos para dar más espacio a las tarjetas
+        const SAFE_TOP_MARGIN = 5; // reducido de 10 a 5
+        let SAFE_BOTTOM_MARGIN = 120; // reducido de 140 a 120
+        const SAFE_SIDE_MARGIN = 5; // reducido de 10 a 5
+        // Dynamic adjustment to ensure no overlap with powerups bar or collected area
+        try {
+          const containerEl = document.getElementById("game");
+          const powerBar = document.getElementById("powerups-bar");
+          const collectedEl = document.getElementById("collected-cards");
+          if (containerEl && powerBar && collectedEl) {
+            const containerRect = containerEl.getBoundingClientRect();
+            const powerRect = powerBar.getBoundingClientRect();
+            const collectedRect = collectedEl.getBoundingClientRect();
+            // Region from the highest (closest to top) of the reserved bottom UI elements to container bottom
+            const reservedTopGlobal = Math.min(
+              powerRect.top,
+              collectedRect.top
+            );
+            const reservedHeightGlobal =
+              containerRect.bottom - reservedTopGlobal;
+            // Translate global reserved height into canvas local safe margin (approx):
+            // canvas height is independent; we use the same reservedHeight as bottom margin inside canvas to be conservative.
+            SAFE_BOTTOM_MARGIN = Math.max(
+              SAFE_BOTTOM_MARGIN,
+              reservedHeightGlobal + 10
+            );
+          }
+        } catch (e) {
+          console.warn("Dynamic safe margin failed, using default", e);
         }
 
-        const boardWidth = config.width * xSpacing - xSpacing / 4;
+        // Tamaños base y espaciado adaptativo mejorado según número de capas
+        let tileWidth = 120; // tamaño base grande
+        let tileHeight = 150; // tamaño base grande
+
+        // Espaciado adaptativo más agresivo para acomodar más cartas
+        const layerReduction = Math.max(0, config.layers - 2); // factor de reducción
+        let baseXGap = Math.max(15, 45 - layerReduction * 4); // reducción más agresiva
+        let baseYGap = Math.max(10, 35 - layerReduction * 3); // reducción más agresiva
+        let layerOffset = Math.max(25, 55 - layerReduction * 3); // reducción más agresiva
+
+        const canvasRect = canvas.getBoundingClientRect();
+        const availableWidth = canvasRect.width - SAFE_SIDE_MARGIN * 2;
+        const availableHeight =
+          canvasRect.height - SAFE_TOP_MARGIN - SAFE_BOTTOM_MARGIN;
+
+        // Dimensiones requeridas sin escalar
+        const requiredWidth =
+          config.width * tileWidth + (config.width - 1) * baseXGap;
+        const requiredHeightBase =
+          config.height * tileHeight + (config.height - 1) * baseYGap;
+        const requiredHeightLayers = (config.layers - 1) * layerOffset;
+        const requiredHeight = requiredHeightBase + requiredHeightLayers;
+
+        // Factor de escala para que todo quepa en la zona segura
+        const scaleFactor = Math.min(
+          1,
+          availableWidth / requiredWidth,
+          availableHeight / requiredHeight
+        );
+
+        // NUEVO: Establecer un tamaño mínimo adaptativo según el nivel
+        // Niveles bajos: tarjetas más grandes, niveles altos: más pequeñas pero visibles
+        const getMinScaleFactor = (level, layers) => {
+          if (layers <= 3) return 0.85; // Niveles iniciales: tarjetas muy grandes
+          if (layers <= 5) return 0.75; // Niveles medios: tarjetas grandes
+          if (layers <= 7) return 0.65; // Niveles avanzados: tarjetas medianas
+          return 0.55; // Niveles muy avanzados: tarjetas pequeñas pero jugables
+        };
+
+        const minScaleFactor = getMinScaleFactor(currentLevel, config.layers);
+
+        // Lógica de escalado inteligente: priorizar escalado natural cuando sea posible
+        let finalScaleFactor;
+        if (scaleFactor >= minScaleFactor) {
+          // Si el escalado natural es suficiente, usarlo
+          finalScaleFactor = scaleFactor;
+        } else {
+          // Si necesitamos forzar un tamaño mínimo, permitir cierta flexibilidad
+          // pero asegurar que siempre quepa en la pantalla
+          finalScaleFactor = Math.min(minScaleFactor, scaleFactor * 1.15);
+        }
+
+        // Aplicar escala coherente a todos los parámetros (usando el factor adaptativo)
+        tileWidth *= finalScaleFactor;
+        tileHeight *= finalScaleFactor;
+        baseXGap *= finalScaleFactor;
+        baseYGap *= finalScaleFactor;
+        layerOffset = layerOffset * finalScaleFactor; // proporcional
+
+        // Espaciamientos finales (posición entre centros de fichas en grilla)
+        const xSpacing = tileWidth + baseXGap;
+        const ySpacing = tileHeight + baseYGap; // normalmente igual a tileHeight
+
+        const boardWidth =
+          config.width * tileWidth +
+          (config.width - 1) * (xSpacing - tileWidth);
         const boardHeight =
-          config.height * ySpacing -
-          ySpacing / 4 +
-          (config.layers - 1) * (24 * (tileHeight / 64));
-        const offsetX = (canvasWidth - boardWidth) / 2;
-        const offsetY = (canvasHeight - boardHeight) / 2;
+          config.height * tileHeight +
+          (config.height - 1) * (ySpacing - tileHeight) +
+          (config.layers - 1) * layerOffset;
+
+        // Centrado dentro de la zona segura
+        const offsetX = SAFE_SIDE_MARGIN + (availableWidth - boardWidth) / 2;
+        const offsetY = SAFE_TOP_MARGIN + (availableHeight - boardHeight) / 2;
+        // ---------------------------------------------------------
 
         let tileId = 0;
-        for (let y = 0; y < config.height && tileId < baseLayerSize; y++) {
-          for (let x = 0; x < config.width && tileId < baseLayerSize; x++) {
+        for (let y = 0; y < config.height; y++) {
+          for (let x = 0; x < config.width; x++) {
             const tile = {
               id: tileId,
               imageUrl: tileTrios[tileId],
@@ -600,17 +784,16 @@
               z: 0,
               element: null,
               free: true,
+              xSpacing: xSpacing,
+              ySpacing: ySpacing,
+              offsetX: offsetX,
+              offsetY: offsetY,
+              tileWidth: tileWidth,
+              tileHeight: tileHeight,
+              layerOffset: layerOffset,
             };
             tiles.push(tile);
-            createTileElement(
-              tile,
-              offsetX,
-              offsetY,
-              tileWidth,
-              tileHeight,
-              xSpacing,
-              ySpacing
-            );
+            createTileElement(tile);
             tileId++;
           }
         }
@@ -624,86 +807,200 @@
         shuffleArray(positions);
 
         let posIndex = 0;
-        for (let z = 1; z < config.layers && tileId < totalTiles; z++) {
-          const tilesToPlace = Math.min(baseLayerSize, totalTiles - tileId);
-          for (let i = 0; i < tilesToPlace && tileId < totalTiles; i++) {
-            const pos = positions[posIndex % positions.length];
-            posIndex++;
-            const tile = {
-              id: tileId,
-              imageUrl: tileTrios[tileId],
-              x: pos.x,
-              y: pos.y,
-              z: z,
-              element: null,
-              free: true,
-            };
-            tiles.push(tile);
-            createTileElement(
-              tile,
-              offsetX,
-              offsetY,
-              tileWidth,
-              tileHeight,
-              xSpacing,
-              ySpacing
+        for (let i = tileId; i < totalTiles; i++) {
+          const z = Math.floor((i - baseSize) / baseSize) + 1;
+          if (z >= config.layers) break;
+          const pos = positions[posIndex % positions.length];
+          posIndex++;
+          const tile = {
+            id: i,
+            imageUrl: tileTrios[i],
+            x: pos.x,
+            y: pos.y,
+            z: z,
+            element: null,
+            free: true,
+            xSpacing: xSpacing,
+            ySpacing: ySpacing,
+            offsetX: offsetX,
+            offsetY: offsetY,
+            tileWidth: tileWidth,
+            tileHeight: tileHeight,
+            layerOffset: layerOffset,
+          };
+          tiles.push(tile);
+          createTileElement(tile);
+        }
+
+        const tileCounts = {};
+        tiles.forEach((tile) => {
+          tileCounts[tile.imageUrl] = (tileCounts[tile.imageUrl] || 0) + 1;
+        });
+        console.log("Tile counts for level " + currentLevel + ":", tileCounts);
+        for (let url in tileCounts) {
+          if (tileCounts[url] !== 3) {
+            console.error(
+              `Error: ${url} tiene ${tileCounts[url]} instancias en lugar de 3`
             );
-            tileId++;
           }
         }
+
         updateTileStatus();
       }
 
-      function createTileElement(
-        tile,
-        offsetX,
-        offsetY,
-        tileWidth,
-        tileHeight,
-        xSpacing,
-        ySpacing
-      ) {
+      // Visibility threshold: require tile to be (almost) completely uncovered to be clickable
+      const FREE_TILE_VISIBILITY_THRESHOLD = 0.65; // reducido para compensar mayor separación
+
+      function createTileElement(tile) {
         const canvas = document.getElementById("game-canvas");
         const element = document.createElement("div");
         element.className = "tile";
         element.innerHTML = `<img src="${tile.imageUrl}" alt="Card">`;
-        element.style.width = `${tileWidth}px`;
-        element.style.height = `${tileHeight}px`;
-        element.style.left = `${tile.x * xSpacing + offsetX}px`;
+        // Usar tamaños escalados almacenados en la ficha (valores por defecto actualizados a tamaño grande)
+        element.style.width = `${tile.tileWidth || 120}px`;
+        element.style.height = `${tile.tileHeight || 150}px`;
+        const layerOffset =
+          tile.layerOffset || 30 * ((tile.tileHeight || 150) / 150);
+        element.style.left = `${tile.x * tile.xSpacing + tile.offsetX}px`;
         element.style.top = `${
-          tile.y * ySpacing + offsetY + tile.z * (24 * (tileHeight / 64))
+          tile.y * tile.ySpacing + tile.offsetY + tile.z * layerOffset
         }px`;
-        element.style.transform = `translateZ(${
-          tile.z * (24 * (tileHeight / 64))
-        }px)`;
-        element.addEventListener("click", () => selectTile(tile));
+        element.style.transform = `translateZ(${tile.z * layerOffset}px)`;
+        // Diseño simplificado por capas - solo bordes diferenciados
+        const depthFactor = tile.z;
+
+        // Colores de borde por capa para mejor diferenciación
+        const borderColors = [
+          "#000000",
+          "#333333",
+          "#555555",
+          "#777777",
+          "#999999",
+        ];
+        const borderColor =
+          borderColors[Math.min(depthFactor, borderColors.length - 1)];
+
+        // Aplicar estilo simplificado
+        element.style.borderColor = borderColor;
+        element.style.borderWidth = `${2 + Math.min(depthFactor, 2)}px`; // borde ligeramente más grueso en capas superiores
+        element.dataset.layer = depthFactor;
+        element.style.zIndex = 100 + tile.z;
+        element.addEventListener("click", (e) => {
+          e.stopPropagation();
+          selectTile(tile);
+        });
+
+        // Mejorar hit-testing: área de click más precisa
+        element.addEventListener("mousedown", (e) => {
+          e.stopPropagation();
+          selectTile(tile);
+        });
+
+        // Área de hit-testing para touch más amplia
+        element.style.touchAction = "manipulation";
+        element.dataset.tileId = tile.id;
         canvas.appendChild(element);
         tile.element = element;
       }
 
       function updateTileStatus() {
         tiles.forEach((tile) => {
-          tile.free = !tiles.some(
-            (t) =>
-              t !== tile && t.z > tile.z && t.x === tile.x && t.y === tile.y
-          );
+          const tW = tile.tileWidth || 120; // actualizado a tamaño grande
+          const tH = tile.tileHeight || 150; // actualizado a tamaño grande
+          const layerOffset = tile.layerOffset || 30 * (tH / 150); // actualizado cálculo por defecto
+          const tileRect = {
+            left: tile.x * tile.xSpacing + tile.offsetX,
+            top: tile.y * tile.ySpacing + tile.offsetY + tile.z * layerOffset,
+            right: tile.x * tile.xSpacing + tile.offsetX + tW,
+            bottom:
+              tile.y * tile.ySpacing + tile.offsetY + tile.z * layerOffset + tH,
+          };
+          const tileArea = tW * tH; // Área total de la ficha
+
+          let coveredArea = 0;
+          tiles.forEach((other) => {
+            if (other !== tile && other.z > tile.z) {
+              const oW = other.tileWidth || 120; // actualizado a tamaño grande
+              const oH = other.tileHeight || 150; // actualizado a tamaño grande
+              const otherLayerOffset = other.layerOffset || 30 * (oH / 150); // actualizado cálculo por defecto
+              const otherRect = {
+                left: other.x * other.xSpacing + other.offsetX,
+                top:
+                  other.y * other.ySpacing +
+                  other.offsetY +
+                  other.z * otherLayerOffset,
+                right: other.x * other.xSpacing + other.offsetX + oW,
+                bottom:
+                  other.y * other.ySpacing +
+                  other.offsetY +
+                  other.z * otherLayerOffset +
+                  oH,
+              };
+
+              const overlapX = Math.max(
+                0,
+                Math.min(tileRect.right, otherRect.right) -
+                  Math.max(tileRect.left, otherRect.left)
+              );
+              const overlapY = Math.max(
+                0,
+                Math.min(tileRect.bottom, otherRect.bottom) -
+                  Math.max(tileRect.top, otherRect.top)
+              );
+              coveredArea += overlapX * overlapY;
+            }
+          });
+
+          const visibleArea = tileArea - coveredArea;
+          tile.free = visibleArea / tileArea >= FREE_TILE_VISIBILITY_THRESHOLD; // must be ~fully uncovered
           tile.element.className = "tile" + (tile.free ? " free" : " blocked");
+          // Simplificar estados visuales de las fichas
+          if (tile.element) {
+            if (tile.free) {
+              // Fichas libres: fondo blanco, borde negro
+              tile.element.style.background = "#ffffff";
+              tile.element.style.borderColor = "#000000";
+              tile.element.style.opacity = "1";
+            } else {
+              // Fichas bloqueadas: fondo gris, borde gris, semi-transparente
+              tile.element.style.background = "#f0f0f0";
+              tile.element.style.borderColor = "#999999";
+              tile.element.style.opacity = "0.6";
+            }
+          }
         });
         checkGameState();
       }
 
       function selectTile(tile) {
-        if (!tile.free) return;
+        // Evitar doble selección de la misma ficha
+        if (selectedTileId === tile.id) {
+          return;
+        }
 
-        if (collectedTiles.length < 7) {
+        // Verificar que la ficha esté libre y sea seleccionable
+        if (
+          !tile.free ||
+          !tile.element ||
+          !tile.element.classList.contains("free")
+        )
+          return;
+
+        // Procesar la selección inmediatamente
+        selectedTileId = tile.id;
+
+        if (collectedTiles.length < 5) {
           moveToCollected(tile);
           moves++;
           updateStats();
           checkTrio();
-          if (collectedTiles.length === 7) {
+          if (collectedTiles.length === 5) {
             checkCollectedForLoss();
           }
         }
+
+        // Limpiar la selección inmediatamente después del procesamiento
+        selectedTileId = null;
       }
 
       function moveToCollected(tile) {
@@ -719,7 +1016,9 @@
         const element = document.createElement("div");
         element.className = "collected-tile";
         element.innerHTML = `<img src="${tile.imageUrl}" alt="Card">`;
-        element.style.left = `${(collectedTiles.length - 1) * 56}px`;
+        element.style.left = `${
+          ((collectedTiles.length - 1) * (collectedArea.offsetWidth - 20)) / 5
+        }px`;
         collectedArea.appendChild(element);
         tile.collectedElement = element;
       }
@@ -746,12 +1045,10 @@
             score += 50;
             updateStats();
             slideCollectedTilesLeft();
-            if (!isMuted) {
-              trioSound.volume = 0.5;
-              trioSound.currentTime = 0;
-              trioSound.play();
+            if (!isMuted && trioSound) {
+              playAudio(trioSound, 0.5);
             }
-            window.FarcadeSDK.singlePlayer.actions.hapticFeedback(); // Haptic feedback for trio match
+            window.FarcadeSDK.singlePlayer.actions.hapticFeedback();
             checkVictory();
             break;
           }
@@ -759,8 +1056,11 @@
       }
 
       function slideCollectedTilesLeft() {
+        const collectedArea = document.getElementById("collected-cards");
         collectedTiles.forEach((tile, index) => {
-          tile.collectedElement.style.left = `${index * 56}px`;
+          tile.collectedElement.style.left = `${
+            (index * (collectedArea.offsetWidth - 20)) / 5
+          }px`;
         });
       }
 
@@ -772,7 +1072,7 @@
         const canMakeTrio = Object.values(imageCounts).some(
           (count) => count >= 3
         );
-        if (collectedTiles.length === 7 && !canMakeTrio) {
+        if (collectedTiles.length === 5 && !canMakeTrio) {
           loseLife("No more moves possible!");
         }
       }
@@ -786,15 +1086,79 @@
 
       function startTimer() {
         clearInterval(timer);
-        time = 0;
         const maxTime = BASE_TIME + (level - 1) * 10;
+        time = maxTime;
+        document.getElementById("time").textContent = time;
         timer = setInterval(() => {
-          time++;
-          document.getElementById("time").textContent = time;
-          if (time >= maxTime) {
-            loseLife("Time ran out!");
+          if (!timerFrozen) {
+            time--;
+            document.getElementById("time").textContent = time;
+            if (time <= 0) {
+              loseLife("Time ran out!");
+            }
           }
         }, 1000);
+      }
+
+      function freezeTime() {
+        if (timeFreezeUsed || timerFrozen) return;
+        timeFreezeUsed = true;
+        timerFrozen = true;
+        const btn = document.getElementById("freeze-time-btn");
+        if (btn) {
+          btn.classList.add("disabled");
+          btn.setAttribute("title", "Used");
+        }
+        showToast("Time frozen!");
+      }
+
+      function showHint() {
+        if (hintUsed) return;
+        hintUsed = true;
+        const hintBtn = document.getElementById("hint-btn");
+        if (hintBtn) {
+          hintBtn.classList.add("disabled");
+          hintBtn.setAttribute("title", "Used");
+        }
+        // Build stats across all tiles + collected
+        if (tiles.length === 0) {
+          showToast("No tiles");
+          return;
+        }
+        const stats = {};
+        tiles.forEach((t) => {
+          (stats[t.imageUrl] ||= { board: [], collected: 0 }).board.push(t);
+        });
+        collectedTiles.forEach((t) => {
+          (stats[t.imageUrl] ||= { board: [], collected: 0 }).collected++;
+        });
+        let candidates = Object.entries(stats)
+          .filter(([_, info]) => info.board.length + info.collected >= 3)
+          .map(([url, info]) => ({
+            url,
+            board: info.board,
+            boardCount: info.board.length,
+            collectedCount: info.collected,
+          }));
+        if (!candidates.length) {
+          showToast("No trio available");
+          return;
+        }
+        candidates.sort((a, b) => {
+          if (a.collectedCount !== b.collectedCount)
+            return b.collectedCount - a.collectedCount;
+          return b.boardCount - a.boardCount;
+        });
+        const chosen = candidates[0];
+        const need = Math.min(3 - chosen.collectedCount, chosen.boardCount);
+        if (need <= 0) {
+          showToast("No executable trio");
+          return;
+        }
+        const toTake = chosen.board.sort((a, b) => b.z - a.z).slice(0, need);
+        toTake.forEach((tile) => moveToCollected(tile));
+        checkTrio();
+        showToast("Trio removed");
       }
 
       function updateStats() {
@@ -812,19 +1176,17 @@
         if (tiles.length === 0 && collectedTiles.length === 0) {
           clearInterval(timer);
           const maxTime = BASE_TIME + (level - 1) * 10;
-          const remainingTime = maxTime - time;
-          score += 1000 + remainingTime * 50;
+          const remainingTime = time;
+          // Increased level completion reward: base + time bonus scaled more
+          // Old: 1000 + remainingTime * 50
+          // New: 1500 base + remainingTime * 75 + level scaling
+          score += 1500 + remainingTime * 75 + (level - 1) * 200;
           document.getElementById("game").style.display = "none";
           document.getElementById("victory").style.display = "flex";
           document.getElementById("victory-score").textContent = score;
-          document.getElementById("victory-time").textContent = time;
+          document.getElementById("victory-time").textContent = maxTime - time;
           document.getElementById("victory-moves").textContent = moves;
-          if (!isMuted) {
-            victorySound.volume = 0.7;
-            victorySound.currentTime = 0;
-            victorySound.play();
-          }
-          window.FarcadeSDK.singlePlayer.actions.hapticFeedback(); // Haptic feedback for level victory
+          window.FarcadeSDK.singlePlayer.actions.hapticFeedback();
         }
       }
 
@@ -841,7 +1203,7 @@
             )
         );
 
-        if (!canMakeTrio && freeTiles.length > 0 && collectedTiles.length < 7) {
+        if (!canMakeTrio && freeTiles.length > 0 && collectedTiles.length < 5) {
           loseLife("No more moves possible!");
         }
       }
@@ -851,12 +1213,9 @@
         clearInterval(timer);
         document.getElementById("game").style.display = "none";
         if (lives <= 0) {
-          document.getElementById("game-over").style.display = "flex";
-          document.getElementById("game-over-score").textContent = score;
-          document.getElementById("game-over-level").textContent = level;
-          window.FarcadeSDK.singlePlayer.actions.gameOver({ score: score }); // Game over with score
-          if (!isMuted) {
-            backgroundMusic.pause();
+          window.FarcadeSDK.singlePlayer.actions.gameOver({ score: score });
+          if (!isMuted && backgroundMusic) {
+            pauseAudio(backgroundMusic);
             backgroundMusic.currentTime = 0;
           }
         } else {
@@ -886,14 +1245,9 @@
         level++;
         if (level > levelConfig.length) {
           document.getElementById("victory").style.display = "none";
-          document.getElementById("game-over").style.display = "flex";
-          document.getElementById("game-over-score").textContent = score;
-          document.getElementById("game-over-level").textContent = level - 1;
-          document.getElementById("game-over").querySelector("h1").textContent =
-            "YOU WIN!";
-          window.FarcadeSDK.singlePlayer.actions.gameOver({ score: score }); // Game over with score on completion
-          if (!isMuted) {
-            backgroundMusic.pause();
+          window.FarcadeSDK.singlePlayer.actions.gameOver({ score: score });
+          if (!isMuted && backgroundMusic) {
+            pauseAudio(backgroundMusic);
             backgroundMusic.currentTime = 0;
           }
         } else {
@@ -908,29 +1262,96 @@
         clearInterval(timer);
         document.getElementById("game").style.display = "none";
         document.getElementById("victory").style.display = "none";
-        document.getElementById("game-over").style.display = "none";
         document.getElementById("lose-screen").style.display = "none";
         document.getElementById("menu").style.display = "flex";
         level = 1;
         lives = 3;
         score = 0;
         updateLivesDisplay();
-        if (!isMuted) {
-          backgroundMusic.pause();
+        if (!isMuted && backgroundMusic) {
+          pauseAudio(backgroundMusic);
           backgroundMusic.currentTime = 0;
         }
       }
 
-      document.addEventListener("touchstart", (e) => {
-        const touch = e.touches[0];
-        const tileElement = document.elementFromPoint(
-          touch.clientX,
-          touch.clientY
-        );
-        if (tileElement && tileElement.classList.contains("tile")) {
-          const tile = tiles.find((t) => t.element === tileElement);
-          if (tile) selectTile(tile);
+      // ---- Rotación de música de fondo ----
+      function queueNextBackgroundTrack(autoPlay = false) {
+        if (!backgroundPlaylist.length || !backgroundMusic) return;
+        currentTrackIndex = (currentTrackIndex + 1) % backgroundPlaylist.length;
+        const nextSrc = backgroundPlaylist[currentTrackIndex];
+        if (backgroundMusic.src !== nextSrc) {
+          backgroundMusic.src = nextSrc;
         }
+        backgroundMusic.load();
+        if (autoPlay) {
+          playAudio(backgroundMusic, 0.3);
+        }
+      }
+
+      // Al terminar una pista, pasar a la siguiente automáticamente
+      if (backgroundMusic) {
+        backgroundMusic.removeAttribute("loop");
+        backgroundMusic.addEventListener("ended", () => {
+          if (!isMuted) {
+            queueNextBackgroundTrack(true);
+          }
+        });
+      }
+      // -------------------------------------
+
+      document.addEventListener(
+        "touchstart",
+        (e) => {
+          const touch = e.touches[0];
+
+          // Buscar la ficha más específica en el punto de toque
+          let targetTile = null;
+          let highestZ = -1;
+
+          // Buscar todas las fichas que contienen el punto de toque
+          tiles.forEach((tile) => {
+            if (!tile.element) return;
+
+            const rect = tile.element.getBoundingClientRect();
+            const x = touch.clientX;
+            const y = touch.clientY;
+
+            // Expandir el área de toque con un margen de 8px para mejor precisión
+            const margin = 8;
+
+            // Verificar si el toque está dentro de los límites expandidos de la ficha
+            if (
+              x >= rect.left - margin &&
+              x <= rect.right + margin &&
+              y >= rect.top - margin &&
+              y <= rect.bottom + margin
+            ) {
+              // Priorizar fichas con mayor z (más arriba)
+              if (tile.z > highestZ && tile.free) {
+                highestZ = tile.z;
+                targetTile = tile;
+              }
+            }
+          });
+
+          // Si encontramos una ficha válida, procesarla
+          if (targetTile) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            // Procesar la selección inmediatamente
+            selectTile(targetTile);
+          }
+        },
+        { passive: false }
+      );
+
+      // Attach events
+      document.addEventListener("DOMContentLoaded", () => {
+        const freezeBtn = document.getElementById("freeze-time-btn");
+        if (freezeBtn) freezeBtn.addEventListener("click", freezeTime);
+        const hintBtn = document.getElementById("hint-btn");
+        if (hintBtn) hintBtn.addEventListener("click", showHint);
       });
     </script>
   </body>
