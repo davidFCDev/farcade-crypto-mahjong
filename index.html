@@ -8,6 +8,14 @@
       href="https://fonts.googleapis.com/css2?family=Bangers&display=swap"
       rel="stylesheet"
     />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap"
+      rel="stylesheet"
+    />
     <script src="https://cdn.jsdelivr.net/npm/@farcade/game-sdk@latest/dist/index.min.js"></script>
     <style>
       body {
@@ -66,17 +74,21 @@
 
       .tile {
         position: absolute;
-        width: 120px; /* aumentado de 85px a 120px */
-        height: 150px; /* aumentado de 110px a 150px */
+        width: 55px; /* reducido ligeramente de 60px a 55px */
+        height: 70px; /* reducido ligeramente de 75px a 70px */
         background: #ffffff;
         border: 2px solid #000000;
-        border-radius: 8px; /* aumentado ligeramente el radio para proporciones */
+        border-radius: 4px; /* ajustado proporcionalmente */
         display: flex;
         align-items: center;
         justify-content: center;
         cursor: pointer;
-        transition: transform 0.15s ease, border-color 0.15s ease;
         transform-style: preserve-3d;
+        box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3); /* sombra base para profundidad */
+        user-select: none; /* evitar selección de texto */
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
       }
 
       .tile img {
@@ -85,20 +97,27 @@
         object-fit: cover;
         border: none;
         border-radius: 3px;
-        pointer-events: none;
+        pointer-events: none; /* asegurar que los clics pasen al contenedor */
+        user-select: none;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
       }
 
       .tile.free:hover {
-        transform: translateY(-2px) scale(1.03);
+        transform: translateY(-3px) scale(1.1); /* aumentado el efecto para fichas más pequeñas */
         border-color: #b81f24;
         background: #fff;
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4),
+          0 0 15px rgba(184, 31, 36, 0.3); /* sombra más prominente */
       }
 
       .tile.blocked {
         opacity: 0.5;
-        cursor: not-allowed;
+        cursor: not-allowed !important;
         background: #f0f0f0;
         border-color: #999;
+        pointer-events: none; /* Las fichas bloqueadas no deben interceptar clics */
       }
 
       .stats {
@@ -400,10 +419,132 @@
       audio {
         display: none;
       }
+
+      /* ===== Loader overlay (sólo primera carga) ===== */
+      #loader-overlay {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background: #000000;
+        z-index: 9999;
+      }
+
+      #loader-overlay .loader-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 20px;
+        width: 100%;
+      }
+
+      /* Canvas de sprite sheet: 4097x345, 17 frames => 241x345 por frame */
+      #loader-canvas {
+        width: 241px;
+        height: 345px;
+        image-rendering: pixelated;
+        transform-origin: center;
+        background: transparent;
+        display: block;
+      }
+
+      #studio-text {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        font-family: "Pixelify Sans", "Press Start 2P", system-ui, monospace;
+        font-weight: 700;
+        color: #ffffff;
+        text-shadow: 3px 3px 0 #000;
+        gap: 6px;
+        opacity: 0;
+        transform: translateY(8px) scale(0.98);
+        transition: opacity 700ms ease,
+          transform 500ms cubic-bezier(0.2, 0.6, 0.2, 1);
+      }
+
+      #studio-text.show {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+
+      #studio-text .brand-main {
+        font-size: 24px;
+        letter-spacing: 3px;
+        line-height: 1;
+        color: #ffffff;
+        position: relative;
+        /* Borde pixelado adicional */
+        text-shadow: 2px 0 #000, -2px 0 #000, 0 2px #000, 0 -2px #000,
+          2px 2px #000, -2px 2px #000, 2px -2px #000, -2px -2px #000,
+          3px 3px 0 #000; /* mantiene la estética previa */
+      }
+
+      #studio-text .brand-main::after {
+        content: "";
+        display: block;
+        width: 160px;
+        height: 6px;
+        margin: 8px auto 0;
+        background: #b7ff00;
+        border: 3px solid #000;
+        box-shadow: 4px 4px 0 #000;
+      }
+
+      #studio-text .brand-sub {
+        font-size: 14px;
+        letter-spacing: 4px;
+        color: #b7ff00;
+        text-shadow: 3px 3px 0 #000, 0 0 10px rgba(183, 255, 0, 0.3);
+        line-height: 1;
+      }
+
+      #studio-text .brand-tm {
+        position: absolute;
+        top: -6px;
+        right: -16px;
+        font-size: 9px;
+        color: #ffffff;
+        text-shadow: 2px 2px 0 #000;
+        opacity: 0.9;
+      }
+
+      @media (max-width: 520px) {
+        #loader-canvas {
+          transform: scale(0.8);
+        }
+        #studio-text .brand-main {
+          font-size: 20px;
+        }
+        #studio-text .brand-main::after {
+          width: 140px;
+          height: 6px;
+          margin-top: 6px;
+        }
+        #studio-text .brand-sub {
+          font-size: 13px;
+        }
+      }
     </style>
   </head>
   <body>
     <div id="game-container">
+      <!-- Loader overlay (se mostrará sólo al cargar por primera vez) -->
+      <div id="loader-overlay" style="display: none">
+        <div class="loader-content">
+          <canvas id="loader-canvas" width="241" height="345"></canvas>
+          <div id="studio-text">
+            <span class="brand-main">HELLBOUND</span>
+            <span class="brand-sub">STUDIOS</span>
+            <span class="brand-tm">™</span>
+          </div>
+        </div>
+      </div>
       <div id="menu">
         <h1><span>Crypto</span><span>Mahjong</span></h1>
         <button id="start-btn" onclick="startGame()">START</button>
@@ -526,16 +667,16 @@
       let selectedTileId = null;
 
       const levelConfig = [
-        { layers: 2, width: 3, height: 3, baseTiles: 9, totalTiles: 18 },
-        { layers: 3, width: 4, height: 4, baseTiles: 16, totalTiles: 30 },
-        { layers: 4, width: 4, height: 4, baseTiles: 16, totalTiles: 36 },
-        { layers: 5, width: 4, height: 4, baseTiles: 16, totalTiles: 51 },
-        { layers: 6, width: 4, height: 4, baseTiles: 16, totalTiles: 66 },
-        { layers: 7, width: 4, height: 4, baseTiles: 16, totalTiles: 87 },
-        { layers: 8, width: 4, height: 4, baseTiles: 16, totalTiles: 108 },
-        { layers: 9, width: 4, height: 4, baseTiles: 16, totalTiles: 135 },
-        { layers: 10, width: 4, height: 4, baseTiles: 16, totalTiles: 165 },
-        { layers: 11, width: 4, height: 4, baseTiles: 16, totalTiles: 198 },
+        { layers: 2, width: 3, height: 3, baseTiles: 9, totalTiles: 18 }, // 18 ÷ 3 = 6 ✅
+        { layers: 3, width: 4, height: 4, baseTiles: 16, totalTiles: 30 }, // 30 ÷ 3 = 10 ✅
+        { layers: 4, width: 4, height: 4, baseTiles: 16, totalTiles: 36 }, // 36 ÷ 3 = 12 ✅
+        { layers: 5, width: 4, height: 4, baseTiles: 16, totalTiles: 48 }, // 48 ÷ 3 = 16 ✅ (corregido de 51)
+        { layers: 6, width: 4, height: 4, baseTiles: 16, totalTiles: 66 }, // 66 ÷ 3 = 22 ✅
+        { layers: 7, width: 4, height: 4, baseTiles: 16, totalTiles: 84 }, // 84 ÷ 3 = 28 ✅ (corregido de 87)
+        { layers: 8, width: 4, height: 4, baseTiles: 16, totalTiles: 108 }, // 108 ÷ 3 = 36 ✅
+        { layers: 9, width: 4, height: 4, baseTiles: 16, totalTiles: 135 }, // 135 ÷ 3 = 45 ✅
+        { layers: 10, width: 4, height: 4, baseTiles: 16, totalTiles: 165 }, // 165 ÷ 3 = 55 ✅
+        { layers: 11, width: 4, height: 4, baseTiles: 16, totalTiles: 198 }, // 198 ÷ 3 = 66 ✅
       ];
 
       const backgroundMusic = document.getElementById("background-music");
@@ -584,11 +725,13 @@
         updateLivesDisplay();
         generateBoard(level);
         startTimer();
-        timeFreezeUsed = false;
+        // timeFreezeUsed NO se resetea - solo se puede usar una vez en todo el juego
         timerFrozen = false;
         hintUsed = false;
         const freezeBtn = document.getElementById("freeze-time-btn");
-        if (freezeBtn) freezeBtn.classList.remove("disabled");
+        // Solo habilitar el botón de congelar tiempo si no se ha usado
+        if (freezeBtn && !timeFreezeUsed)
+          freezeBtn.classList.remove("disabled");
         const hintBtn = document.getElementById("hint-btn");
         if (hintBtn) hintBtn.classList.remove("disabled");
         if (!isMuted && backgroundMusic) {
@@ -606,11 +749,20 @@
         level = 1;
         lives = 3;
         score = 0;
+        // Resetear poderes para nuevo juego completo
+        timeFreezeUsed = false;
+        timerFrozen = false;
+        hintUsed = false;
         document.getElementById("game").style.display = "none";
         document.getElementById("victory").style.display = "none";
         document.getElementById("lose-screen").style.display = "none";
         document.getElementById("menu").style.display = "flex";
         updateLivesDisplay();
+        // Habilitar botones de poderes para nuevo juego
+        const freezeBtn = document.getElementById("freeze-time-btn");
+        if (freezeBtn) freezeBtn.classList.remove("disabled");
+        const hintBtn = document.getElementById("hint-btn");
+        if (hintBtn) hintBtn.classList.remove("disabled");
         if (!isMuted && backgroundMusic) {
           backgroundMusic.currentTime = 0;
           queueNextBackgroundTrack(true);
@@ -657,7 +809,20 @@
         const totalTiles = config.totalTiles;
         const baseSize = config.width * config.height;
 
-        const triosNeeded = totalTiles / 3;
+        // VALIDACIÓN CRÍTICA: Asegurar que totalTiles sea múltiplo de 3
+        if (config.totalTiles % 3 !== 0) {
+          console.error(
+            `ERROR CRÍTICO: Nivel ${currentLevel} tiene ${config.totalTiles} fichas, que no es múltiplo de 3!`
+          );
+          // Ajustar automáticamente al múltiplo de 3 más cercano (hacia abajo)
+          const adjustedTiles = Math.floor(config.totalTiles / 3) * 3;
+          console.warn(
+            `Ajustando automáticamente de ${config.totalTiles} a ${adjustedTiles} fichas`
+          );
+          config.totalTiles = adjustedTiles;
+        }
+
+        const triosNeeded = config.totalTiles / 3;
         const tileTrios = [];
         for (let i = 0; i < triosNeeded; i++) {
           const imageUrl = cardImages[i % cardImages.length];
@@ -666,15 +831,43 @@
         shuffleArray(tileTrios);
 
         // -------- LÓGICA DE ESCALADO Y ZONA SEGURA OPTIMIZADA --------
-        // Márgenes seguros reducidos para dar más espacio a las tarjetas
-        const SAFE_TOP_MARGIN = 5; // reducido de 10 a 5
+        // Márgenes seguros ajustados para evitar superposición con el timer
+        let SAFE_TOP_MARGIN = 90; // timer está en top: 60px + padding + altura ≈ 90px
         let SAFE_BOTTOM_MARGIN = 120; // reducido de 140 a 120
-        const SAFE_SIDE_MARGIN = 5; // reducido de 10 a 5
-        // Dynamic adjustment to ensure no overlap with powerups bar or collected area
+        let SAFE_SIDE_MARGIN = 15; // margen base más el ancho estimado del timer desde la derecha
+        // Dynamic adjustment to ensure no overlap with timer, stats, powerups bar or collected area
         try {
           const containerEl = document.getElementById("game");
+          const statsEl = document.querySelector(".stats");
+          const timerEl = document.getElementById("timer-container");
           const powerBar = document.getElementById("powerups-bar");
           const collectedEl = document.getElementById("collected-cards");
+
+          if (containerEl && statsEl) {
+            const containerRect = containerEl.getBoundingClientRect();
+            const statsRect = statsEl.getBoundingClientRect();
+
+            // Calcular margen superior dinámico basado en el área de stats
+            const statsBottomGlobal = statsRect.bottom;
+            const statsTopMargin = statsBottomGlobal - containerRect.top + 15; // 15px de margen extra
+            SAFE_TOP_MARGIN = Math.max(SAFE_TOP_MARGIN, statsTopMargin);
+          }
+
+          if (containerEl && timerEl) {
+            const containerRect = containerEl.getBoundingClientRect();
+            const timerRect = timerEl.getBoundingClientRect();
+
+            // Calcular margen superior dinámico basado en la posición del timer
+            const timerBottomGlobal = timerRect.bottom;
+            const timerTopMargin = timerBottomGlobal - containerRect.top + 10; // 10px de margen extra
+            SAFE_TOP_MARGIN = Math.max(SAFE_TOP_MARGIN, timerTopMargin);
+
+            // Calcular margen lateral derecho dinámico basado en el timer
+            const timerLeftGlobal = timerRect.left;
+            const timerRightMargin = containerRect.right - timerLeftGlobal + 10; // 10px de margen extra
+            SAFE_SIDE_MARGIN = Math.max(SAFE_SIDE_MARGIN, timerRightMargin);
+          }
+
           if (containerEl && powerBar && collectedEl) {
             const containerRect = containerEl.getBoundingClientRect();
             const powerRect = powerBar.getBoundingClientRect();
@@ -697,75 +890,54 @@
           console.warn("Dynamic safe margin failed, using default", e);
         }
 
-        // Tamaños base y espaciado adaptativo mejorado según número de capas
-        let tileWidth = 120; // tamaño base grande
-        let tileHeight = 150; // tamaño base grande
+        // Tamaños fijos para todas las fichas (ligeramente más pequeño)
+        const fixedTileWidth = 55;
+        const fixedTileHeight = 70;
 
-        // Espaciado adaptativo más agresivo para acomodar más cartas
+        // Espaciado adaptativo con mayor separación entre capas
         const layerReduction = Math.max(0, config.layers - 2); // factor de reducción
-        let baseXGap = Math.max(15, 45 - layerReduction * 4); // reducción más agresiva
-        let baseYGap = Math.max(10, 35 - layerReduction * 3); // reducción más agresiva
-        let layerOffset = Math.max(25, 55 - layerReduction * 3); // reducción más agresiva
+        let baseXGap = Math.max(2, 8 - layerReduction * 0.5); // espaciado mínimo entre fichas
+        let baseYGap = Math.max(2, 6 - layerReduction * 0.5); // espaciado mínimo entre fichas
+        let layerOffset = Math.max(15, 30 - layerReduction * 1); // mayor offset entre capas para distinguirlas
 
         const canvasRect = canvas.getBoundingClientRect();
         const availableWidth = canvasRect.width - SAFE_SIDE_MARGIN * 2;
         const availableHeight =
           canvasRect.height - SAFE_TOP_MARGIN - SAFE_BOTTOM_MARGIN;
 
-        // Dimensiones requeridas sin escalar
+        // Dimensiones requeridas con tamaños fijos
         const requiredWidth =
-          config.width * tileWidth + (config.width - 1) * baseXGap;
+          config.width * fixedTileWidth + (config.width - 1) * baseXGap;
         const requiredHeightBase =
-          config.height * tileHeight + (config.height - 1) * baseYGap;
+          config.height * fixedTileHeight + (config.height - 1) * baseYGap;
         const requiredHeightLayers = (config.layers - 1) * layerOffset;
         const requiredHeight = requiredHeightBase + requiredHeightLayers;
 
-        // Factor de escala para que todo quepa en la zona segura
+        // Factor de escala solo para espaciado si es necesario
         const scaleFactor = Math.min(
           1,
           availableWidth / requiredWidth,
           availableHeight / requiredHeight
         );
 
-        // NUEVO: Establecer un tamaño mínimo adaptativo según el nivel
-        // Niveles bajos: tarjetas más grandes, niveles altos: más pequeñas pero visibles
-        const getMinScaleFactor = (level, layers) => {
-          if (layers <= 3) return 0.85; // Niveles iniciales: tarjetas muy grandes
-          if (layers <= 5) return 0.75; // Niveles medios: tarjetas grandes
-          if (layers <= 7) return 0.65; // Niveles avanzados: tarjetas medianas
-          return 0.55; // Niveles muy avanzados: tarjetas pequeñas pero jugables
-        };
-
-        const minScaleFactor = getMinScaleFactor(currentLevel, config.layers);
-
-        // Lógica de escalado inteligente: priorizar escalado natural cuando sea posible
-        let finalScaleFactor;
-        if (scaleFactor >= minScaleFactor) {
-          // Si el escalado natural es suficiente, usarlo
-          finalScaleFactor = scaleFactor;
-        } else {
-          // Si necesitamos forzar un tamaño mínimo, permitir cierta flexibilidad
-          // pero asegurar que siempre quepa en la pantalla
-          finalScaleFactor = Math.min(minScaleFactor, scaleFactor * 1.15);
+        // Aplicar factor de escala solo al espaciado si es necesario para que quepa todo
+        if (scaleFactor < 1) {
+          baseXGap *= scaleFactor;
+          baseYGap *= scaleFactor;
+          layerOffset *= scaleFactor;
         }
 
-        // Aplicar escala coherente a todos los parámetros (usando el factor adaptativo)
-        tileWidth *= finalScaleFactor;
-        tileHeight *= finalScaleFactor;
-        baseXGap *= finalScaleFactor;
-        baseYGap *= finalScaleFactor;
-        layerOffset = layerOffset * finalScaleFactor; // proporcional
-
         // Espaciamientos finales (posición entre centros de fichas en grilla)
-        const xSpacing = tileWidth + baseXGap;
-        const ySpacing = tileHeight + baseYGap; // normalmente igual a tileHeight
+        // Usar tamaños fijos de fichas (120x150px) para cálculos
+        const xSpacing = fixedTileWidth + baseXGap;
+        const ySpacing = fixedTileHeight + baseYGap;
 
         const boardWidth =
-          config.width * tileWidth +
-          (config.width - 1) * (xSpacing - tileWidth);
+          config.width * fixedTileWidth +
+          (config.width - 1) * (xSpacing - fixedTileWidth);
         const boardHeight =
-          config.height * tileHeight +
-          (config.height - 1) * (ySpacing - tileHeight) +
+          config.height * fixedTileHeight +
+          (config.height - 1) * (ySpacing - fixedTileHeight) +
           (config.layers - 1) * layerOffset;
 
         // Centrado dentro de la zona segura
@@ -788,8 +960,6 @@
               ySpacing: ySpacing,
               offsetX: offsetX,
               offsetY: offsetY,
-              tileWidth: tileWidth,
-              tileHeight: tileHeight,
               layerOffset: layerOffset,
             };
             tiles.push(tile);
@@ -824,8 +994,6 @@
             ySpacing: ySpacing,
             offsetX: offsetX,
             offsetY: offsetY,
-            tileWidth: tileWidth,
-            tileHeight: tileHeight,
             layerOffset: layerOffset,
           };
           tiles.push(tile);
@@ -836,64 +1004,135 @@
         tiles.forEach((tile) => {
           tileCounts[tile.imageUrl] = (tileCounts[tile.imageUrl] || 0) + 1;
         });
-        console.log("Tile counts for level " + currentLevel + ":", tileCounts);
+
+        // VALIDACIÓN MEJORADA: Verificar que todas las fichas sean múltiplos de 3
+        console.log(`=== VALIDACIÓN NIVEL ${currentLevel} ===`);
+        console.log(`Total fichas generadas: ${tiles.length}`);
+        console.log(`Total fichas esperadas: ${config.totalTiles}`);
+        console.log("Conteo por imagen:", tileCounts);
+
+        let validationPassed = true;
+        let totalTriosAvailable = 0;
+
         for (let url in tileCounts) {
-          if (tileCounts[url] !== 3) {
+          const count = tileCounts[url];
+          if (count !== 3) {
             console.error(
-              `Error: ${url} tiene ${tileCounts[url]} instancias en lugar de 3`
+              `❌ ERROR: ${url} tiene ${count} instancias en lugar de 3`
             );
+            validationPassed = false;
+          } else {
+            totalTriosAvailable++;
           }
         }
+
+        if (validationPassed) {
+          console.log(
+            `✅ VALIDACIÓN EXITOSA: ${totalTriosAvailable} tríos disponibles`
+          );
+        } else {
+          console.error(
+            `❌ VALIDACIÓN FALLIDA: El nivel ${currentLevel} tiene fichas no balanceadas`
+          );
+        }
+        console.log("=== FIN VALIDACIÓN ===");
 
         updateTileStatus();
       }
 
-      // Visibility threshold: require tile to be (almost) completely uncovered to be clickable
-      const FREE_TILE_VISIBILITY_THRESHOLD = 0.65; // reducido para compensar mayor separación
+      // Visibility threshold: require tile to be more than 50% visible to be clickable
+      const FREE_TILE_VISIBILITY_THRESHOLD = 0.5; // cambiado a 50% para mayor accesibilidad
 
       function createTileElement(tile) {
         const canvas = document.getElementById("game-canvas");
         const element = document.createElement("div");
         element.className = "tile";
         element.innerHTML = `<img src="${tile.imageUrl}" alt="Card">`;
-        // Usar tamaños escalados almacenados en la ficha (valores por defecto actualizados a tamaño grande)
-        element.style.width = `${tile.tileWidth || 120}px`;
-        element.style.height = `${tile.tileHeight || 150}px`;
-        const layerOffset =
-          tile.layerOffset || 30 * ((tile.tileHeight || 150) / 150);
+        // Usar tamaño fijo de 55x70px para todas las fichas
+        element.style.width = "55px";
+        element.style.height = "70px";
+        const layerOffset = tile.layerOffset || 25; // aumentado para mejor separación
         element.style.left = `${tile.x * tile.xSpacing + tile.offsetX}px`;
         element.style.top = `${
           tile.y * tile.ySpacing + tile.offsetY + tile.z * layerOffset
         }px`;
         element.style.transform = `translateZ(${tile.z * layerOffset}px)`;
-        // Diseño simplificado por capas - solo bordes diferenciados
+
+        // Efectos visuales mejorados por capas
         const depthFactor = tile.z;
 
         // Colores de borde por capa para mejor diferenciación
         const borderColors = [
-          "#000000",
-          "#333333",
-          "#555555",
-          "#777777",
-          "#999999",
+          "#000000", // capa base - negro
+          "#1a1a1a", // capa 1 - gris muy oscuro
+          "#333333", // capa 2 - gris oscuro
+          "#4d4d4d", // capa 3 - gris medio-oscuro
+          "#666666", // capa 4 - gris medio
+          "#808080", // capa 5 - gris claro
         ];
+
+        // Sombras progresivas por capa para efecto de profundidad
+        const shadowIntensity = 2 + depthFactor * 3;
+        const shadowBlur = 4 + depthFactor * 2;
+        const shadowOffsetX = 1 + depthFactor * 2;
+        const shadowOffsetY = 1 + depthFactor * 2;
+
         const borderColor =
           borderColors[Math.min(depthFactor, borderColors.length - 1)];
 
-        // Aplicar estilo simplificado
+        // Aplicar estilos mejorados con efectos de profundidad
         element.style.borderColor = borderColor;
-        element.style.borderWidth = `${2 + Math.min(depthFactor, 2)}px`; // borde ligeramente más grueso en capas superiores
+        element.style.borderWidth = `${2 + Math.min(depthFactor, 3)}px`; // borde más grueso en capas superiores
+        element.style.boxShadow = `${shadowOffsetX}px ${shadowOffsetY}px ${shadowBlur}px rgba(0, 0, 0, ${
+          0.3 + depthFactor * 0.1
+        })`;
+
+        // Efecto de elevación: las capas superiores son ligeramente más brillantes
+        const brightness = 1 + depthFactor * 0.05;
+        element.style.filter = `brightness(${brightness})`;
+
         element.dataset.layer = depthFactor;
         element.style.zIndex = 100 + tile.z;
+
+        // Asegurar que solo las fichas libres tengan cursor pointer
+        element.style.cursor = tile.free ? "pointer" : "default";
+
+        // Event listeners mejorados para mejor precisión
         element.addEventListener("click", (e) => {
           e.stopPropagation();
-          selectTile(tile);
+          e.preventDefault();
+          if (
+            tile.free &&
+            tile.element &&
+            tile.element.classList.contains("free")
+          ) {
+            selectTile(tile);
+          }
         });
 
-        // Mejorar hit-testing: área de click más precisa
         element.addEventListener("mousedown", (e) => {
           e.stopPropagation();
-          selectTile(tile);
+          e.preventDefault();
+          if (
+            tile.free &&
+            tile.element &&
+            tile.element.classList.contains("free")
+          ) {
+            selectTile(tile);
+          }
+        });
+
+        // Event listener para touch devices
+        element.addEventListener("touchstart", (e) => {
+          e.stopPropagation();
+          e.preventDefault();
+          if (
+            tile.free &&
+            tile.element &&
+            tile.element.classList.contains("free")
+          ) {
+            selectTile(tile);
+          }
         });
 
         // Área de hit-testing para touch más amplia
@@ -905,9 +1144,10 @@
 
       function updateTileStatus() {
         tiles.forEach((tile) => {
-          const tW = tile.tileWidth || 120; // actualizado a tamaño grande
-          const tH = tile.tileHeight || 150; // actualizado a tamaño grande
-          const layerOffset = tile.layerOffset || 30 * (tH / 150); // actualizado cálculo por defecto
+          // Usar tamaños fijos correctos para el cálculo de visibilidad
+          const tW = 60; // tamaño fijo actual
+          const tH = 75; // tamaño fijo actual
+          const layerOffset = tile.layerOffset || 25;
           const tileRect = {
             left: tile.x * tile.xSpacing + tile.offsetX,
             top: tile.y * tile.ySpacing + tile.offsetY + tile.z * layerOffset,
@@ -918,44 +1158,71 @@
           const tileArea = tW * tH; // Área total de la ficha
 
           let coveredArea = 0;
-          tiles.forEach((other) => {
-            if (other !== tile && other.z > tile.z) {
-              const oW = other.tileWidth || 120; // actualizado a tamaño grande
-              const oH = other.tileHeight || 150; // actualizado a tamaño grande
-              const otherLayerOffset = other.layerOffset || 30 * (oH / 150); // actualizado cálculo por defecto
-              const otherRect = {
-                left: other.x * other.xSpacing + other.offsetX,
-                top:
-                  other.y * other.ySpacing +
-                  other.offsetY +
-                  other.z * otherLayerOffset,
-                right: other.x * other.xSpacing + other.offsetX + oW,
-                bottom:
-                  other.y * other.ySpacing +
-                  other.offsetY +
-                  other.z * otherLayerOffset +
-                  oH,
-              };
 
-              const overlapX = Math.max(
-                0,
-                Math.min(tileRect.right, otherRect.right) -
-                  Math.max(tileRect.left, otherRect.left)
-              );
-              const overlapY = Math.max(
-                0,
-                Math.min(tileRect.bottom, otherRect.bottom) -
-                  Math.max(tileRect.top, otherRect.top)
-              );
+          // Obtener todas las fichas que están por encima de esta
+          const coveringTiles = tiles.filter(
+            (other) => other !== tile && other.z > tile.z
+          );
+
+          // Para cada ficha que cubre, calcular el área de superposición
+          coveringTiles.forEach((other) => {
+            const oW = 60; // usar tamaño fijo correcto
+            const oH = 75; // usar tamaño fijo correcto
+            const otherLayerOffset = other.layerOffset || 25; // usar offset correcto
+            const otherRect = {
+              left: other.x * other.xSpacing + other.offsetX,
+              top:
+                other.y * other.ySpacing +
+                other.offsetY +
+                other.z * otherLayerOffset,
+              right: other.x * other.xSpacing + other.offsetX + oW,
+              bottom:
+                other.y * other.ySpacing +
+                other.offsetY +
+                other.z * otherLayerOffset +
+                oH,
+            };
+
+            const overlapX = Math.max(
+              0,
+              Math.min(tileRect.right, otherRect.right) -
+                Math.max(tileRect.left, otherRect.left)
+            );
+            const overlapY = Math.max(
+              0,
+              Math.min(tileRect.bottom, otherRect.bottom) -
+                Math.max(tileRect.top, otherRect.top)
+            );
+
+            // Solo agregar si hay superposición real
+            if (overlapX > 0 && overlapY > 0) {
               coveredArea += overlapX * overlapY;
             }
           });
 
+          // Asegurar que el área cubierta no sea mayor que el área total
+          coveredArea = Math.min(coveredArea, tileArea);
+
           const visibleArea = tileArea - coveredArea;
-          tile.free = visibleArea / tileArea >= FREE_TILE_VISIBILITY_THRESHOLD; // must be ~fully uncovered
+          const visibilityPercentage = Math.max(0, visibleArea / tileArea); // asegurar que no sea negativo
+          tile.free = visibilityPercentage >= FREE_TILE_VISIBILITY_THRESHOLD; // must be more than 50% visible
+
+          // Debug logging para verificar cálculos (comentar después de verificar)
+          if (Math.random() < 0.01) {
+            // log solo 1% de las fichas para no saturar consola
+            console.log(
+              `Tile at (${tile.x}, ${tile.y}, z${tile.z}): ${(
+                visibilityPercentage * 100
+              ).toFixed(1)}% visible, ${tile.free ? "FREE" : "BLOCKED"}`
+            );
+          }
+
           tile.element.className = "tile" + (tile.free ? " free" : " blocked");
           // Simplificar estados visuales de las fichas
           if (tile.element) {
+            // Actualizar cursor basado en el estado
+            tile.element.style.cursor = tile.free ? "pointer" : "default";
+
             if (tile.free) {
               // Fichas libres: fondo blanco, borde negro
               tile.element.style.background = "#ffffff";
@@ -1191,6 +1458,11 @@
       }
 
       function checkGameState() {
+        // Solo verificar "no more moves possible" si el jugador ya tiene 5 cartas
+        if (collectedTiles.length < 5) {
+          return; // No verificar hasta que tenga 5 cartas
+        }
+
         const freeTiles = tiles.filter((t) => t.free);
         const canMakeTrio = freeTiles.some(
           (t1) =>
@@ -1203,7 +1475,7 @@
             )
         );
 
-        if (!canMakeTrio && freeTiles.length > 0 && collectedTiles.length < 5) {
+        if (!canMakeTrio && freeTiles.length > 0) {
           loseLife("No more moves possible!");
         }
       }
@@ -1348,10 +1620,139 @@
 
       // Attach events
       document.addEventListener("DOMContentLoaded", () => {
+        // --- Loader inicial (primera carga de la página) ---
+        if (!window._splashShown) {
+          window._splashShown = true; // evita repeticiones en esta sesión
+          const overlay = document.getElementById("loader-overlay");
+          const canvas = document.getElementById("loader-canvas");
+          const studioText = document.getElementById("studio-text");
+          const SPRITE_URL =
+            "https://lqy3lriiybxcejon.public.blob.vercel-storage.com/zS0QCi0PfUjO/chuckytes2t-a9Hz89icXVQVgOkchS0ssNllYtJfiu.png?RB0F";
+          const COIN_URL =
+            "https://lqy3lriiybxcejon.public.blob.vercel-storage.com/zS0QCi0PfUjO/coin-recieved-230517-8iUcgtcaKrJnZepqHDAwpsU1PvqoJ0.mp3?eRCU";
+
+          if (overlay && canvas && studioText) {
+            overlay.style.display = "flex";
+            // Pre-cargar el sprite antes de animar
+            const img = new Image();
+            img.onload = () => {
+              // Animación manual por frames en canvas (sin desplazamientos)
+              const ctx = canvas.getContext("2d");
+              if (ctx && ctx.imageSmoothingEnabled !== undefined) {
+                ctx.imageSmoothingEnabled = false;
+              }
+              const FRAME_W = 241;
+              const FRAME_H = 345;
+              const FRAME_COUNT = 18;
+              const DURATION_MS = 2800; // ~2.8s total (no muy rápido)
+              const FRAME_MS = Math.floor(DURATION_MS / FRAME_COUNT);
+              let frame = 0;
+
+              const coinSound = new Audio(COIN_URL);
+              coinSound.preload = "auto";
+
+              const draw = () => {
+                ctx.clearRect(0, 0, FRAME_W, FRAME_H);
+                ctx.drawImage(
+                  img,
+                  frame * FRAME_W,
+                  0,
+                  FRAME_W,
+                  FRAME_H,
+                  0,
+                  0,
+                  FRAME_W,
+                  FRAME_H
+                );
+              };
+
+              draw();
+
+              const interval = setInterval(() => {
+                if (frame < FRAME_COUNT - 1) {
+                  frame += 1;
+                  draw();
+                } else {
+                  clearInterval(interval);
+                  // Mostrar el texto y luego ocultar overlay
+                  studioText.classList.add("show");
+                  // Reproducir sonido al aparecer HELLBOUND
+                  const tryPlayCoin = () => {
+                    if (typeof isMuted === "undefined" || !isMuted) {
+                      try {
+                        playAudio(coinSound, 0.6);
+                      } catch (_) {}
+                    }
+                  };
+                  tryPlayCoin();
+                  // Fallback por si el navegador bloquea autoplay, se intentará al primer input
+                  const unlock = () => {
+                    tryPlayCoin();
+                    document.removeEventListener("pointerdown", unlock, true);
+                  };
+                  document.addEventListener("pointerdown", unlock, true);
+                  setTimeout(() => {
+                    studioText.classList.remove("show");
+                    setTimeout(() => {
+                      overlay.style.display = "none";
+                    }, 600);
+                  }, 1200);
+                }
+              }, FRAME_MS);
+            };
+            img.src = SPRITE_URL;
+          }
+        }
+
         const freezeBtn = document.getElementById("freeze-time-btn");
         if (freezeBtn) freezeBtn.addEventListener("click", freezeTime);
         const hintBtn = document.getElementById("hint-btn");
         if (hintBtn) hintBtn.addEventListener("click", showHint);
+
+        // Event delegation para el canvas del juego para capturar clics perdidos
+        const canvas = document.getElementById("game-canvas");
+        if (canvas) {
+          canvas.addEventListener("click", (e) => {
+            // Buscar la ficha en el punto de clic
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            // Encontrar la ficha más alta (z mayor) en ese punto
+            let targetTile = null;
+            let highestZ = -1;
+
+            tiles.forEach((tile) => {
+              if (!tile.element || !tile.free) return;
+
+              const tileRect = tile.element.getBoundingClientRect();
+              const canvasRect = canvas.getBoundingClientRect();
+
+              // Convertir coordenadas de la ficha relativas al canvas
+              const tileX = tileRect.left - canvasRect.left;
+              const tileY = tileRect.top - canvasRect.top;
+              const tileRight = tileX + tileRect.width;
+              const tileBottom = tileY + tileRect.height;
+
+              // Verificar si el clic está dentro de la ficha
+              if (
+                x >= tileX &&
+                x <= tileRight &&
+                y >= tileY &&
+                y <= tileBottom
+              ) {
+                if (tile.z > highestZ) {
+                  highestZ = tile.z;
+                  targetTile = tile;
+                }
+              }
+            });
+
+            if (targetTile) {
+              selectTile(targetTile);
+            }
+          });
+        }
       });
     </script>
   </body>
